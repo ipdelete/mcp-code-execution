@@ -1,6 +1,8 @@
 # MCP Code Execution Implementation
 
-Implementation of the code execution pattern for Model Context Protocol (MCP) as described in the [Code Execution with MCP](./docs/code-execution-with-mcp.md) article.
+Implementation of the code execution pattern for Model Context Protocol (MCP) as described in Anthropic's article: [Code Execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp).
+
+> This approach addresses key challenges in scaling MCP agents: tool definitions that overload context windows, and intermediate results that consume excessive tokens. By presenting MCP servers as importable TypeScript modules, agents can load only what they need and process data locally before returning results.
 
 ## What This Is
 
