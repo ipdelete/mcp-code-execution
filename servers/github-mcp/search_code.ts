@@ -59,5 +59,5 @@ interface SearchCodeResult {
  * });
  */
 export async function search_code(params: SearchCodeParams): Promise<SearchCodeResult> {
-  return await callMcpTool('github-mcp-server', 'search_code', params);
+  return await callMcpTool<SearchCodeResult>('github__search_code', params);
 }

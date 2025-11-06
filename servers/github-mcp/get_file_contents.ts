@@ -73,5 +73,5 @@ type GetFileContentsResult = FileContent | DirectoryContent[];
  * });
  */
 export async function get_file_contents(params: GetFileContentsParams): Promise<GetFileContentsResult> {
-  return await callMcpTool('github-mcp-server', 'get_file_contents', params);
+  return await callMcpTool<GetFileContentsResult>('github__get_file_contents', params);
 }
