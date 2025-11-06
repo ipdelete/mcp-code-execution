@@ -13,66 +13,113 @@ Instead of loading all MCP tool definitions into context and passing intermediat
 - **Privacy Preservation** - Intermediate results stay in execution environment
 - **State Persistence** - Save results and build reusable skills
 
-## Setup
+## How It Works
 
-```bash
-npm install
+This repository provides TypeScript wrapper modules for MCP servers that AI agents can import and use in generated code. The agent harness intercepts these calls and executes the actual MCP protocol communication.
+
+**For AI Agents:**
+1. Review the prompt in `prompts/01-basic-search-and-analyze.md`
+2. Write TypeScript code that imports from `./servers/github-mcp`
+3. The harness intercepts `callMcpTool()` and executes the MCP protocol
+4. Results are processed locally and only summaries return to context
+
+## Quick Start
+
+**For Users:** Provide this prompt to an AI agent with access to GitHub Copilot or similar MCP-enabled environment:
+
 ```
+Create a TypeScript script at workspace/search-and-analyze.ts that imports 
+from ./servers/github-mcp, searches for TypeScript files with "MCP" in the 
+modelcontextprotocol/servers repo, processes the results to find total files, 
+top 3 directories, and average score. Save full results to workspace/mcp-files.json 
+and console.log only the summary.
+```
+
+**What the agent will generate:**
+
+```typescript
+import * as github from '../servers/github-mcp';
+import * as fs from 'fs/promises';
+
+async function main() {
+  // Agent writes code that calls MCP tools
+  const results = await github.search_code({
+    query: 'MCP language:typescript repo:modelcontextprotocol/servers',
+    perPage: 100
+  });
+
+  // Process results locally (data never goes through model context)
+  const directories = results.items.map(item => 
+    item.path.substring(0, item.path.lastIndexOf('/'))
+  );
+
+  const dirCounts = directories.reduce((acc, dir) => {
+    acc[dir] = (acc[dir] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const topDirectories = Object.entries(dirCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([dir]) => dir);
+
+  const averageScore = results.items.reduce((sum, item) => 
+    sum + item.score, 0) / results.items.length;
+
+  // Save full results to disk
+  await fs.writeFile(
+    './workspace/mcp-files.json', 
+    JSON.stringify(results, null, 2)
+  );
+
+  // Return only summary to context
+  console.log(JSON.stringify({
+    totalFiles: results.items.length,
+    topDirectories,
+    averageScore
+  }, null, 2));
+}
+
+main();
+```
+
+**Result:** Only ~100 bytes of summary flow through context, while 5KB+ of full results stay in the execution environment.
 
 ## Project Structure
 
 ```
 .
 ├── docs/                    # Documentation
-├── prompts/                # Example use cases
+├── prompts/                # Prompt examples for AI agents
+│   └── 01-basic-search-and-analyze.md
 ├── servers/                # MCP server TypeScript wrappers
 │   ├── github-mcp/         # GitHub MCP server tools
 │   │   ├── search_code.ts  # Code search
 │   │   ├── get_file_contents.ts
 │   │   └── index.ts        # Exported API
-│   └── mcp-client.ts       # Core MCP client
-└── workspace/              # Execution environment for scripts
+│   └── mcp-client.ts       # Core MCP client (intercepted by harness)
+└── workspace/              # Execution environment for generated scripts
 ```
 
-## Usage
+## For Developers
 
-### Import and Use MCP Tools
+To use this pattern in your own agent harness:
 
-```typescript
-import * as github from './servers/github-mcp';
+1. **Setup**
+   ```bash
+   npm install
+   ```
 
-// Search for code
-const results = await github.search_code({
-  query: 'MCP language:typescript repo:modelcontextprotocol/servers',
-  perPage: 100
-});
+2. **Intercept `callMcpTool`**
+   - Hook into TypeScript execution environment
+   - Intercept calls to `callMcpTool()` in `servers/mcp-client.ts`
+   - Translate to MCP protocol requests
+   - Return results to executing code
 
-// Process results locally (not through context)
-const directories = results.items.map(item => 
-  item.path.substring(0, item.path.lastIndexOf('/'))
-);
-
-// Save to disk for later
-await fs.writeFile('workspace/results.json', JSON.stringify(results));
-
-// Return only summary
-console.log({ totalFiles: results.items.length });
-```
-
-### Run Scripts
-
-```bash
-# Execute any TypeScript file
-npm run dev <file.ts>
-
-# Example
-npm run dev workspace/search-and-analyze.ts
-
-# Build
-npm run build
-```
-
-## Key Pattern
+3. **Add MCP Servers**
+   - Create directory: `servers/your-server/`
+   - Wrap tools as TypeScript functions calling `callMcpTool()`
+   - Export from `index.ts`
 
 The traditional approach loads all tools upfront:
 ```typescript
@@ -99,11 +146,19 @@ console.log('Updated'); // Only this goes to context
 
 ## Documentation
 
-- [Code Execution with MCP](./docs/code-execution-with-mcp.md) - Core concepts
+- [Anthropic Article: Code Execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp) - Original article
+- [Article Copy](./docs/code-execution-with-mcp.md) - Local copy for reference
+- [Prompt Examples](./prompts/) - Example prompts for AI agents
 - [Server Implementation](./servers/README.md) - How wrappers work
 
-## Dependencies
+## Contributing
 
-- **TypeScript** - Type-safe tool wrappers
-- **tsx** - Fast TypeScript execution
-- **@types/node** - Node.js type definitions
+To add support for additional MCP servers:
+1. Create a directory under `servers/`
+2. Wrap each tool as a TypeScript function
+3. Call `callMcpTool()` with server name, tool name, and params
+4. Export from `index.ts`
+
+## License
+
+MIT
