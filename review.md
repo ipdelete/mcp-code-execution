@@ -87,11 +87,11 @@ async function generateWrappers() {
 
 ### 3. **Simplify the Harness** (Medium Impact) 📦
 
-- [ ] Remove verbose console output
-- [ ] Simplify signal handlers
-- [ ] Reduce to ~30 lines of essential code
-- [ ] Remove environment variable logic
-- [ ] Keep only initialization, execution, and cleanup
+- [x] Remove verbose console output
+- [x] Simplify signal handlers
+- [x] Reduce to ~30 lines of essential code
+- [x] Remove environment variable logic
+- [x] Keep only initialization, execution, and cleanup
 
 **Current:** 100+ lines with signal handlers, cleanup, multiple console outputs
 

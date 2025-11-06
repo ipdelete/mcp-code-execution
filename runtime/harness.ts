@@ -2,20 +2,7 @@
 
 /**
  * MCP Code Execution Harness
- *
- * This harness executes TypeScript code with MCP tool call routing.
- * It implements the pattern from "Code Execution with MCP" where:
- *
- * 1. Agent writes code that imports from ./runtime/mcp-client
- * 2. Code calls callMcpTool() which connects to MCP servers on-demand
- * 3. MCP servers provide tools via the Model Context Protocol
- * 4. Results are processed locally and only summaries flow through context
- *
- * How it works:
- * - Harness initializes MCP client manager (loads config)
- * - Scripts import callMcpTool() directly from runtime/mcp-client
- * - Servers connect on-demand when first tool is called
- * - Progressive disclosure reduces token usage by 98.7%
+ * Executes TypeScript scripts with on-demand MCP server connections.
  */
 
 import { register } from 'tsx/esm/api';
@@ -29,70 +16,43 @@ async function main() {
 
   if (args.length === 0) {
     console.error('Usage: npm run exec <script.ts>');
-    console.error('');
-    console.error('Example:');
-    console.error('  npm run exec workspace/search-and-analyze.ts');
     process.exit(1);
   }
 
   const scriptPath = path.resolve(process.cwd(), args[0]);
 
-  // Check if script exists
   if (!fs.existsSync(scriptPath)) {
     console.error(`Error: Script not found: ${scriptPath}`);
     process.exit(1);
   }
 
-  console.error(`[Harness] Loading MCP configuration...`);
-
-  // Initialize MCP client manager (loads config, doesn't connect yet)
+  // Initialize MCP client manager
   const manager = getMcpClientManager();
-  try {
-    await manager.initialize();
-    console.error(`[Harness] Ready - MCP servers will connect on-demand`);
-  } catch (error) {
-    console.error(`[Harness] Failed to load MCP configuration:`, error);
-    process.exit(1);
-  }
+  await manager.initialize();
 
-  console.error(`[Harness] ---`);
-  console.error(`[Harness] Executing: ${scriptPath}`);
+  // Handle cleanup on exit
+  const cleanup = async () => {
+    await manager.cleanup();
+    process.exit(0);
+  };
 
-  // Register tsx for TypeScript execution
+  process.on('SIGINT', cleanup);
+  process.on('SIGTERM', cleanup);
+
+  // Register tsx and execute script
   register();
 
   try {
-    // Import and execute the script
-    const scriptUrl = pathToFileURL(scriptPath).href;
-    await import(scriptUrl);
+    await import(pathToFileURL(scriptPath).href);
   } catch (error) {
-    console.error(`[Harness] Script execution failed:`, error);
+    console.error('Script execution failed:', error);
     process.exit(1);
   } finally {
-    // Cleanup
-    console.error(`[Harness] ---`);
-    console.error(`[Harness] Cleaning up...`);
     await manager.cleanup();
-    console.error(`[Harness] Done`);
   }
 }
 
-// Handle cleanup on exit
-process.on('SIGINT', async () => {
-  console.error('\n[Harness] Interrupted, cleaning up...');
-  const manager = getMcpClientManager();
-  await manager.cleanup();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.error('\n[Harness] Terminated, cleaning up...');
-  const manager = getMcpClientManager();
-  await manager.cleanup();
-  process.exit(0);
-});
-
 main().catch(error => {
-  console.error('[Harness] Fatal error:', error);
+  console.error('Fatal error:', error);
   process.exit(1);
 });
