@@ -28,8 +28,12 @@ export class McpClientManager {
   private initialized = false;
 
   /**
-   * Initialize the MCP client manager by loading configuration
-   * and connecting to all configured servers.
+   * Initialize the MCP client manager by loading configuration.
+   *
+   * IMPORTANT: This does NOT connect to servers upfront. Servers connect
+   * lazily on-demand when tools are first called. This implements the
+   * "progressive disclosure" pattern from the article where agents discover
+   * tools by exploring the filesystem, not loading everything upfront.
    */
   async initialize(configPath?: string): Promise<void> {
     if (this.initialized) {
@@ -49,13 +53,9 @@ export class McpClientManager {
       throw new Error('Invalid MCP configuration: missing mcpServers');
     }
 
-    // Connect to all configured servers
-    const connectionPromises = Object.entries(this.config.mcpServers).map(
-      ([name, config]) => this.connectToServer(name, config)
-    );
-
-    await Promise.all(connectionPromises);
     this.initialized = true;
+    console.error(`[MCP] Configuration loaded (${Object.keys(this.config.mcpServers).length} servers available)`);
+    console.error(`[MCP] Servers will connect on-demand when tools are first called`);
   }
 
   /**
@@ -101,7 +101,10 @@ export class McpClientManager {
   }
 
   /**
-   * Call a tool on a specific MCP server
+   * Call a tool on a specific MCP server.
+   *
+   * Implements lazy loading: connects to server on-demand if not already connected.
+   * This is the progressive disclosure pattern - only load what you need when you need it.
    */
   async callTool(toolIdentifier: string, params: Record<string, any>): Promise<any> {
     if (!this.initialized) {
@@ -119,13 +122,24 @@ export class McpClientManager {
 
     const [serverName, toolName] = parts;
 
+    // Connect to server lazily if not already connected
+    if (!this.clients.has(serverName)) {
+      const serverConfig = this.config?.mcpServers[serverName];
+      if (!serverConfig) {
+        throw new Error(
+          `MCP server not configured: ${serverName}\n` +
+          `Available servers in config: ${Object.keys(this.config?.mcpServers || {}).join(', ')}\n` +
+          `Add "${serverName}" to mcp-config.json to use it.`
+        );
+      }
+      console.error(`[MCP] Connecting to server on-demand: ${serverName}`);
+      await this.connectToServer(serverName, serverConfig);
+    }
+
     // Get client for this server
     const client = this.clients.get(serverName);
     if (!client) {
-      throw new Error(
-        `MCP server not found: ${serverName}\n` +
-        `Available servers: ${Array.from(this.clients.keys()).join(', ')}`
-      );
+      throw new Error(`Failed to get client for server: ${serverName}`);
     }
 
     // Check if tool exists

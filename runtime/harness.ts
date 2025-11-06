@@ -63,20 +63,20 @@ async function main() {
   // Set environment variable to indicate harness is active
   process.env.MCP_HARNESS_ACTIVE = 'true';
 
-  console.error(`[Harness] Initializing MCP client manager...`);
+  console.error(`[Harness] Loading MCP configuration...`);
 
-  // Initialize MCP client manager
+  // Initialize MCP client manager (loads config, doesn't connect yet)
   const manager = getMcpClientManager();
   try {
     await manager.initialize();
-    console.error(`[Harness] MCP client manager initialized`);
+    console.error(`[Harness] Ready - MCP servers will connect on-demand`);
   } catch (error) {
-    console.error(`[Harness] Failed to initialize MCP client manager:`, error);
+    console.error(`[Harness] Failed to load MCP configuration:`, error);
     process.exit(1);
   }
 
-  console.error(`[Harness] Executing script: ${scriptPath}`);
   console.error(`[Harness] ---`);
+  console.error(`[Harness] Executing: ${scriptPath}`);
 
   // Register tsx for TypeScript execution
   register();
