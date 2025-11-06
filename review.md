@@ -53,11 +53,11 @@ workspace/script.ts → runtime/mcp-client.ts → MCP servers
 
 ### 2. **Auto-generate Server Wrappers** (Medium Impact) 🤖
 
-- [ ] Create `runtime/generate-wrappers.ts` script
-- [ ] Implement wrapper generation from MCP tool definitions
-- [ ] Add type generation from MCP schemas
-- [ ] Integrate wrapper generation into build process
-- [ ] Remove manually written wrapper files
+- [x] Create `runtime/generate-wrappers.ts` script
+- [x] Implement wrapper generation from MCP tool definitions
+- [x] Add type generation from MCP schemas
+- [x] Integrate wrapper generation into build process
+- [x] Remove manually written wrapper files
 
 **Current:** Manual TypeScript wrapper for each tool:
 ```typescript

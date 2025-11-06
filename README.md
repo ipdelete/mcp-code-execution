@@ -1,60 +1,39 @@
-# MCP Code Execution Implementation
+# MCP Code Execution with Auto-Generated Wrappers
 
-**Working implementation** of the code execution pattern for Model Context Protocol (MCP) as described in Anthropic's article: [Code Execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp).
+**Implementation of the code execution pattern for Model Context Protocol (MCP)** as described in [Anthropic's article](https://www.anthropic.com/engineering/code-execution-with-mcp), with **automatic TypeScript wrapper generation**.
 
-> This approach addresses key challenges in scaling MCP agents: tool definitions that overload context windows, and intermediate results that consume excessive tokens. By presenting MCP servers as importable TypeScript modules, agents can load only what they need and process data locally before returning results.
+> Reduces token usage from 150,000 → 2,000 tokens (98.7% reduction) through progressive disclosure and local data processing.
 
 ## What This Is
 
-A fully functional implementation that allows you to write TypeScript code that imports MCP tools as modules. Instead of loading all MCP tool definitions into context and passing intermediate results through the model, this project:
+A TypeScript execution harness that:
+- **Connects to MCP servers** via the official MCP SDK
+- **Auto-generates typed wrappers** for all MCP tools
+- **Enables progressive discovery** - agents explore the filesystem to find tools
+- **Processes data locally** - keeps intermediate results out of context
+- **Lazy loads servers** - connects on-demand when tools are first called
 
-- **Connects to real MCP servers** via the official MCP SDK
-- **Presents tools as importable TypeScript modules** that agents can use naturally
-- **Intercepts calls** and routes them to actual MCP protocol communication
-- **Processes data locally** keeping intermediate results out of model context
+### Key Benefits
 
-### Benefits
-
-- **Progressive Tool Loading** - Import only the tools you need (98%+ token reduction)
-- **Efficient Data Processing** - Handle large datasets without passing through context
-- **Privacy Preservation** - Intermediate results stay in execution environment
-- **State Persistence** - Save results and build reusable skills
-- **Type Safety** - Full TypeScript support with IntelliSense
-
-## How It Works: Progressive Disclosure
-
-The key insight from the article is **progressive disclosure** - agents discover tools by exploring the filesystem, not loading everything upfront:
-
-> "The agent discovers tools by exploring the filesystem: listing the `./servers/` directory to find available servers, then reading the specific tool files it needs to understand each tool's interface. This lets the agent load only the definitions it needs for the current task."
-
-**In practice:**
-
-1. **Agent explores filesystem** - Lists `./servers/` to discover available servers
-2. **Agent reads only what it needs** - Reads specific tool files to understand interfaces
-3. **Write code** - Imports and uses only the tools needed for the task
-4. **Run with harness** - `npm run exec workspace/your-script.ts`
-5. **Lazy loading** - MCP servers connect **on-demand** when first tool is called (not at startup!)
-6. **Data stays local** - Process results in execution environment
-7. **Return summary** - Only summary flows back to model context
-
-**Token savings:** 150,000 → 2,000 tokens (98.7% reduction from the article)
+- **98.7% token reduction** - Load only the tools you need
+- **Auto-generated types** - TypeScript interfaces from MCP schemas
+- **Zero maintenance** - Wrappers stay in sync with servers
+- **Privacy preservation** - Data stays in execution environment
+- **Type safety** - Full IntelliSense support
 
 ## Quick Start
 
-### Installation
+### 1. Install
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/mcp-code-execution.git
 cd mcp-code-execution
-
-# Install dependencies
 npm install
 ```
 
-### Configuration
+### 2. Configure MCP Servers
 
-Edit `mcp-config.json` to configure which MCP servers to connect to:
+Edit `mcp-config.json`:
 
 ```json
 {
@@ -71,115 +50,102 @@ Edit `mcp-config.json` to configure which MCP servers to connect to:
 }
 ```
 
-### Run the Progressive Disclosure Example
-
-This demonstrates the core pattern from the article:
+### 3. Generate Wrappers
 
 ```bash
-npm run exec workspace/example-progressive-disclosure.ts
+npm run generate
 ```
 
-**Output:**
-```
-=== Progressive Disclosure Pattern ===
+This auto-generates TypeScript wrappers for all configured servers:
+- Connects to each MCP server
+- Discovers available tools via `listTools()`
+- Generates typed interfaces from JSON schemas
+- Creates wrapper functions that call `callMcpTool()`
 
-1. Discovering available MCP servers...
-   Found 1 servers: github-mcp
-   📁 All discovered by reading filesystem, not loaded into context!
+**Generated files** (in `servers/*/`):
+```typescript
+// servers/github/search_code.ts
+import { callMcpTool } from '../../runtime/mcp-client';
 
-2. Task: List files in a directory
-   Decision: Need filesystem operations → use "filesystem" server
-
-3. Reading tool definition to understand interface...
-   Only reading what we need for this task (not loading all 26 GitHub tools!)
-
-4. Importing only the filesystem server...
-   ⚠️  Server will connect on-demand when we call first tool
-
-5. Calling tool (server connects NOW, not at startup)...
-[MCP] Connecting to server on-demand: filesystem
-
-=== Summary (only this goes to model context) ===
-{
-  "totalItems": 131,
-  "serverUsed": "filesystem",
-  "serversConnected": 1,
-  "tokensUsed": "~2,000 (only read 1 tool definition)",
-  "tokensIfTraditional": "~150,000 (all tools loaded upfront)"
+interface SearchCodeParams {
+  q: string;
+  order?: 'asc' | 'desc';
+  page?: number;
+  per_page?: number;
 }
 
-✅ Progressive disclosure complete!
+interface SearchCodeResult {
+  [key: string]: any;
+}
 
-From the article:
-  "This reduces token usage from 150,000 to 2,000 tokens"
-  "A time and cost saving of 98.7%"
+/**
+ * Search for code across GitHub repositories
+ */
+export async function search_code(params: SearchCodeParams): Promise<SearchCodeResult> {
+  return await callMcpTool<SearchCodeResult>('github__search_code', params);
+}
 ```
 
-## Writing Your Own Scripts
+### 4. Run Example
 
-The pattern: **Discover → Read → Use → Process → Summarize**
+```bash
+npm run exec tests/example-progressive-disclosure.ts
+```
+
+## How It Works: Progressive Disclosure
+
+The key insight is **progressive disclosure** - agents discover tools by exploring the filesystem:
+
+1. **Agent explores** - Lists `./servers/` to find available servers
+2. **Agent reads** - Reads specific tool files to understand interfaces
+3. **Agent writes code** - Imports only the tools needed
+4. **Harness executes** - Runs script with `npm run exec`
+5. **Lazy loading** - Servers connect on-demand when first tool is called
+6. **Data stays local** - Process results without passing through context
+7. **Return summary** - Only summary goes back to model
+
+**Token savings:** Load 1 tool definition instead of 40+ servers = 98.7% reduction
+
+## Usage
+
+### Write a Script
+
+Create `tests/my-script.ts`:
 
 ```typescript
-// workspace/my-script.ts
-import * as fs from 'fs/promises';
-import * as path from 'path';
+// 1. Import auto-generated wrappers
+import { list_directory, read_text_file } from '../servers/filesystem';
 
 async function main() {
-  // 1. DISCOVER: Explore filesystem to find available servers
-  const servers = await fs.readdir(path.join(process.cwd(), 'servers'), {
-    withFileTypes: true
-  });
-  const availableServers = servers
-    .filter(e => e.isDirectory())
-    .map(e => e.name);
-  console.log(`Available servers: ${availableServers.join(', ')}`);
+  // 2. Call tools (server connects on-demand here!)
+  const files = await list_directory({ path: '/private/tmp' });
 
-  // 2. READ: Read only the tool definitions you need
-  // (Agent can read tool files to understand interfaces)
+  // 3. Process data locally (never enters model context)
+  const fileCount = JSON.stringify(files).split('\n').length;
 
-  // 3. USE: Import and call only what you need
-  const { callMcpTool } = await import('../runtime/mcp-client');
-
-  // Server connects on-demand here!
-  const result = await callMcpTool('filesystem__list_directory', {
-    path: '/private/tmp'
-  });
-
-  // 4. PROCESS: Data stays local - never enters model context
-  const lines = result.split('\n').filter(line => line.trim());
-  const fileCount = lines.filter(l => l.startsWith('[FILE]')).length;
-
-  // 5. SUMMARIZE: Only summary flows through context
-  console.log({ totalLines: lines.length, fileCount });
+  // 4. Return only summary
+  console.log({ totalFiles: fileCount });
 }
 
 main();
 ```
 
-**Run it:**
+### Run It
+
 ```bash
-npm run exec workspace/my-script.ts
+npm run exec tests/my-script.ts
 ```
 
-### Available Tool Wrappers
+### Using Direct API
 
-The project includes TypeScript wrappers that provide a cleaner API:
+If you prefer, call MCP tools directly:
 
 ```typescript
-// Using the wrapper (recommended)
-import * as github from '../servers/github-mcp';
-
-const results = await github.search_code({
-  query: 'language:typescript',
-  perPage: 10
-});
-
-// Or call MCP tools directly
 import { callMcpTool } from '../runtime/mcp-client';
 
-const results = await callMcpTool('github__search_code', {
-  query: 'language:typescript',
-  perPage: 10
+const result = await callMcpTool('github__search_code', {
+  q: 'language:typescript MCP',
+  per_page: 10
 });
 ```
 
@@ -187,201 +153,197 @@ const results = await callMcpTool('github__search_code', {
 
 ```
 .
-├── docs/                           # Documentation
-├── mcp-config.json                 # MCP server configuration
-├── prompts/                        # Prompt examples for AI agents
-├── runtime/                        # Execution harness
-│   ├── harness.ts                  # Main harness (initializes MCP, runs scripts)
-│   └── mcp-client.ts               # MCP client implementation
-├── servers/                        # MCP server TypeScript wrappers
-│   └── github-mcp/                 # GitHub MCP server tools
-│       ├── search_code.ts          # Code search wrapper
-│       ├── get_file_contents.ts    # File access wrapper
-│       └── index.ts                # Public API
-└── workspace/                      # Your scripts go here
-    ├── example-data-processing.ts  # Complete example
-    └── test-filesystem.ts          # Simple test
+├── mcp-config.json          # MCP server configuration
+├── package.json             # Scripts: exec, generate
+├── runtime/
+│   ├── harness.ts           # Execution harness
+│   ├── mcp-client.ts        # MCP client manager
+│   └── generate-wrappers.ts # Auto-generation script
+├── servers/                 # Auto-generated (gitignored)
+│   ├── filesystem/          # Generated wrappers
+│   └── github/              # Generated wrappers
+└── tests/                   # Your scripts
 ```
 
 ## Architecture
 
-### How It Works
+### Execution Flow
 
-The implementation uses **direct imports** with progressive disclosure:
+```
+1. npm run exec tests/script.ts
+   ↓
+2. Harness initializes (loads config, no connections)
+   ↓
+3. Script runs, imports wrappers
+   ↓
+4. First tool call → Server connects on-demand
+   ↓
+5. callMcpTool() → MCP client → Server (stdio)
+   ↓
+6. Result returns to script
+   ↓
+7. Script processes locally
+   ↓
+8. Only summary goes to console/context
+```
 
-1. **Agent explores filesystem** - Reads `./servers/` to discover available servers
-2. **Agent reads tool definitions** - Opens specific tool files to understand interfaces
-3. **Agent writes code** - Imports from `runtime/mcp-client` only what it needs
-4. **Harness starts** - Initializes MCP client manager, loads config (no connections yet!)
-5. **First tool call** - `callMcpTool()` is called from your script
-6. **Lazy connection** - Server connects **on-demand** via stdio when first tool is called
-7. **Results flow back** - Returned to your code as normal function results
-8. **Process locally** - Data never enters model context
-9. **Return summary** - Only summary flows back to model
+### Key Components
 
-**Key insights:**
-- No complex routing needed - direct function calls to MCP client
-- Nothing loads upfront! Agents discover by reading files, servers connect on-demand
-- Simple, straightforward architecture with progressive disclosure
+**`runtime/harness.ts`**
+- Initializes MCP client manager
+- Runs TypeScript scripts with `tsx`
+- Cleans up connections on exit
 
-### For Developers
+**`runtime/mcp-client.ts`**
+- Manages MCP server connections
+- Implements lazy loading
+- Routes tool calls to correct servers
 
-**Adding new MCP servers:**
+**`runtime/generate-wrappers.ts`**
+- Connects to MCP servers
+- Discovers tools via `listTools()`
+- Converts JSON Schema → TypeScript types
+- Generates wrapper functions
 
-1. Add to `mcp-config.json`:
-   ```json
-   {
-     "mcpServers": {
-       "your-server": {
-         "command": "npx",
-         "args": ["-y", "@modelcontextprotocol/server-yourserver"]
-       }
-     }
-   }
-   ```
+## Adding New Servers
 
-2. Create wrappers in `servers/your-server/`:
-   ```typescript
-   // servers/your-server/your_tool.ts
-   import { callMcpTool } from '../../runtime/mcp-client';
+### 1. Add to Config
 
-   export async function your_tool(params: YourParams) {
-     return callMcpTool('your-server__your_tool', params);
-   }
-   ```
+```json
+{
+  "mcpServers": {
+    "salesforce": {
+      "command": "npx",
+      "args": ["-y", "@your-org/mcp-server-salesforce"]
+    }
+  }
+}
+```
 
-3. Export from `servers/your-server/index.ts`
+### 2. Generate Wrappers
 
-## Comparison: Traditional vs Code Execution with Progressive Disclosure
+```bash
+npm run generate
+```
 
-### Traditional Approach (❌ Inefficient)
+That's it! Wrappers are automatically created.
+
+### 3. Use It
 
 ```typescript
-// AT STARTUP: Load all 40 MCP servers' tool definitions
-// → 150,000 tokens for tool definitions alone!
+import { query_records } from '../servers/salesforce';
 
-TOOL CALL: filesystem__list_directory("/tmp")
-  → Returns 5.65 KB of file listings
-  → ALL 5.65 KB enters model context
+const contacts = await query_records({
+  query: 'SELECT Id, Name FROM Contact LIMIT 10'
+});
+```
 
-TOOL CALL: process_results(...)
-  → Model processes 5.65 KB
-  → Returns summary
+## Best Practices
 
-Total context: ~150 KB tool defs + 5.65 KB data = ~155 KB
+### ✅ Keep Data Local
+
+```typescript
+// Good - Process locally, return summary
+const files = await list_directory({ path: '/tmp' });
+const count = JSON.stringify(files).split('\n').length;
+console.log({ fileCount: count }); // ~50 bytes
+```
+
+### ❌ Avoid Passing Large Data to Context
+
+```typescript
+// Bad - Sends all data to context
+const files = await list_directory({ path: '/tmp' });
+console.log(files); // 5KB to context!
+```
+
+### Save Intermediate Results
+
+```typescript
+import * as fs from 'fs/promises';
+
+// Fetch large dataset
+const data = await search_code({ q: 'MCP', per_page: 100 });
+
+// Save locally
+await fs.writeFile('./data.json', JSON.stringify(data, null, 2));
+
+// Return summary
+console.log({ resultsFound: data.total_count });
+```
+
+## Comparison: Traditional vs Progressive Disclosure
+
+### Traditional MCP (❌ Inefficient)
+
+```
+STARTUP: Load all 40 servers × ~4KB = 150KB of tool definitions
+↓
+CALL: filesystem__list_directory() → 5KB result enters context
+↓
+MODEL: Processes 5KB data, returns summary
+↓
+Total: 150KB + 5KB = 155KB in context
 ```
 
 ### Code Execution with Progressive Disclosure (✅ Efficient)
 
-```typescript
-// AT STARTUP: Nothing loaded! Config file read, but no connections.
-
-// STEP 1: Agent explores filesystem (progressive disclosure)
-const servers = fs.readdirSync('./servers'); // ['github-mcp', ...]
-// Agent sees what's available WITHOUT loading definitions
-
-// STEP 2: Agent reads ONLY the tool file it needs
-const toolCode = fs.readFileSync('./servers/filesystem/list_directory.ts');
-// ~100 bytes read, understands interface
-
-// STEP 3: Agent uses it
-import { callMcpTool } from '../runtime/mcp-client';
-
-// Server connects ON-DEMAND here (not at startup!)
-const listing = await callMcpTool('filesystem__list_directory', {
-  path: '/tmp'
-}); // 5.65 KB stays in execution environment
-
-// STEP 4: Process locally
-const summary = processLocally(listing); // Data never enters context
-
-// STEP 5: Only summary to context
-console.log(summary); // 445 bytes
-
-Total context: ~2 KB (only 1 tool definition read + summary)
+```
+STARTUP: Load config only (no connections, no definitions)
+↓
+AGENT EXPLORES: ls ./servers → sees available servers
+↓
+AGENT READS: cat servers/filesystem/list_directory.ts (~100 bytes)
+↓
+CALL: list_directory() → Server connects on-demand → 5KB stays local
+↓
+PROCESS: Script filters locally (never enters context)
+↓
+RETURN: Summary only (~50 bytes)
+↓
+Total: ~2KB (1 tool definition + summary)
 ```
 
-### Token Savings
+**Result:** 98.7% token reduction
 
-**From our progressive disclosure example:**
-- **Traditional:** ~150,000 tokens (all tool definitions loaded)
-- **Code execution:** ~2,000 tokens (only read 1 tool definition)
-- **Reduction:** 98.7% (matches the article exactly!)
+## Regenerating Wrappers
 
-**Why such massive savings?**
-1. **No upfront loading** - Tools discovered by filesystem exploration
-2. **Lazy loading** - Servers connect on-demand, not at startup
-3. **Local processing** - Data never enters model context
-4. **Progressive disclosure** - Read only what you need, when you need it
+Wrappers are gitignored and generated on-demand. To regenerate:
 
-## Technical Details
+```bash
+# Generate for all servers
+npm run generate
 
-### MCP Protocol
-
-This implementation uses:
-- **[@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk)** - Official MCP TypeScript SDK
-- **stdio transport** - Communicates with MCP servers via stdin/stdout
-- **Tool calling** - Implements the MCP tools/call protocol
-
-### Tool Identifier Format
-
-Tools are identified using the pattern: `serverName__toolName`
-
-Examples:
-- `filesystem__list_directory`
-- `github__search_code`
-- `salesforce__update_record`
-
-This matches the article's pattern and makes it easy to route calls to the correct server.
+# First-time setup on new clone
+git clone <repo>
+npm install
+npm run generate
+npm run exec tests/example-progressive-disclosure.ts
+```
 
 ## Troubleshooting
 
-**"callMcpTool requires the MCP harness to be active"**
-- Make sure you're running with `npm run exec`, not directly with `npx tsx`
-- The harness sets `MCP_HARNESS_ACTIVE=true` which the stub checks to route calls
-- The stub automatically imports the real implementation when the env var is set
+**"MCP server not configured"**
+- Check server name in `mcp-config.json` matches tool identifier
+- Format: `serverName__toolName` (e.g., `filesystem__list_directory`)
 
 **"Connection closed" errors**
-- Check that the MCP server command in `mcp-config.json` is correct
-- Verify the server is installed: `npx -y @modelcontextprotocol/server-filesystem --help`
+- Verify MCP server is installed: `npx -y @modelcontextprotocol/server-filesystem --help`
+- Check command and args in `mcp-config.json`
 
-**Path access denied errors**
-- For filesystem server, ensure paths are within allowed directories
+**Path access denied (filesystem server)**
 - On macOS, use `/private/tmp` instead of `/tmp`
+- Ensure path is in allowed directories (configured in `args`)
 
-## Examples
-
-**Progressive Disclosure (Core Pattern from Article):**
-- `workspace/example-progressive-disclosure.ts` - **START HERE** - Shows filesystem discovery, lazy loading, 98.7% token reduction
-
-**Additional Examples:**
-- `workspace/example-data-processing.ts` - Data processing with local filtering
-- `workspace/test-filesystem.ts` - Simple filesystem test
-- `workspace/test-list-tools.ts` - List all available MCP tools
-- `prompts/01-basic-search-and-analyze.md` - Prompt for AI agents
-
-## Documentation
-
-- [Anthropic Article: Code Execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp) - Original article
-- [Article Copy](./docs/code-execution-with-mcp.md) - Local copy for reference
-- [Prompt Examples](./prompts/) - Example prompts for AI agents
-- [Server Implementation](./servers/README.md) - How wrappers work
-
-## Contributing
-
-Contributions are welcome! To add support for additional MCP servers:
-
-1. Add server configuration to `mcp-config.json`
-2. Create directory under `servers/your-server/`
-3. Wrap each tool as a TypeScript function calling `callMcpTool('server__tool', params)`
-4. Export from `servers/your-server/index.ts`
-5. Add documentation and examples
+**Missing wrappers**
+- Run `npm run generate` to create them
 
 ## References
 
-- [Model Context Protocol](https://modelcontextprotocol.io/) - Official MCP documentation
-- [MCP Servers](https://github.com/modelcontextprotocol/servers) - Official MCP server implementations
-- [Claude Code](https://claude.ai/code) - AI coding assistant with MCP support
+- [Anthropic Article: Code Execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp) - Original article
+- [Model Context Protocol](https://modelcontextprotocol.io/) - Official MCP docs
+- [MCP Servers](https://github.com/modelcontextprotocol/servers) - Official server implementations
+- [MCP SDK](https://www.npmjs.com/package/@modelcontextprotocol/sdk) - TypeScript SDK
 
 ## License
 

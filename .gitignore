@@ -4,5 +4,6 @@ dist/
 .DS_Store
 .env
 .env.local
-workspace/*.json
-workspace/*.csv
+
+# Generated server wrappers (run 'npm run generate' to create)
+servers/*/
