@@ -191,15 +191,14 @@ const results = await callMcpTool('github__search_code', {
 ├── mcp-config.json                 # MCP server configuration
 ├── prompts/                        # Prompt examples for AI agents
 ├── runtime/                        # Execution harness
-│   ├── harness.ts                  # Main harness entry point
-│   ├── mcp-client-impl.ts          # Real MCP client implementation
-│   └── mcp-client-shim.ts          # Module shim for interception
+│   ├── harness.ts                  # Main harness (sets env var, runs scripts)
+│   └── mcp-client-impl.ts          # Real MCP client implementation
 ├── servers/                        # MCP server TypeScript wrappers
 │   ├── github-mcp/                 # GitHub MCP server tools
 │   │   ├── search_code.ts          # Code search wrapper
 │   │   ├── get_file_contents.ts    # File access wrapper
 │   │   └── index.ts                # Public API
-│   └── mcp-client.ts               # Stub (replaced at runtime)
+│   └── mcp-client.ts               # Stub (routes to impl at runtime)
 └── workspace/                      # Your scripts go here
     ├── example-data-processing.ts  # Complete example
     └── test-filesystem.ts          # Simple test
@@ -207,19 +206,24 @@ const results = await callMcpTool('github__search_code', {
 
 ## Architecture
 
-### How Interception Works
+### How It Works
+
+The implementation uses **environment variable routing** instead of module interception:
 
 1. **Agent explores filesystem** - Reads `./servers/` to discover available servers
 2. **Agent reads tool definitions** - Opens specific tool files to understand interfaces
 3. **Agent writes code** - Imports from `servers/mcp-client.ts` only what it needs
 4. **Harness starts** - Sets `MCP_HARNESS_ACTIVE=true`, loads config (no connections yet!)
-5. **First tool call** - `callMcpTool()` detects environment, dynamically imports real implementation
+5. **First tool call** - `callMcpTool()` checks env var, dynamically imports real implementation
 6. **Lazy connection** - Server connects **on-demand** via stdio when first tool is called
-7. **Results flow back** - Transparently returned to your code
+7. **Results flow back** - Returned to your code as normal function results
 8. **Process locally** - Data never enters model context
 9. **Return summary** - Only summary flows back to model
 
-**Key insight:** Nothing loads upfront! Agents discover by reading files, servers connect on-demand.
+**Key insights:**
+- No module interception needed - just env var check + dynamic import
+- Nothing loads upfront! Agents discover by reading files, servers connect on-demand
+- The stub in `servers/mcp-client.ts` does the routing automatically
 
 ### For Developers
 
@@ -333,9 +337,10 @@ This matches the article's pattern and makes it easy to route calls to the corre
 
 ## Troubleshooting
 
-**"callMcpTool was not intercepted by agent harness"**
+**"callMcpTool requires the MCP harness to be active"**
 - Make sure you're running with `npm run exec`, not directly with `npx tsx`
-- The harness sets the required environment variable for interception
+- The harness sets `MCP_HARNESS_ACTIVE=true` which the stub checks to route calls
+- The stub automatically imports the real implementation when the env var is set
 
 **"Connection closed" errors**
 - Check that the MCP server command in `mcp-config.json` is correct

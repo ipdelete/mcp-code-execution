@@ -3,13 +3,19 @@
 /**
  * MCP Code Execution Harness
  *
- * This harness executes TypeScript code with MCP tool call interception.
+ * This harness executes TypeScript code with MCP tool call routing.
  * It implements the pattern from "Code Execution with MCP" where:
  *
  * 1. Agent writes code that imports from ./servers/
  * 2. Code calls callMcpTool() from servers/mcp-client
- * 3. Harness intercepts and routes to real MCP implementation
- * 4. Results flow back as if the function executed normally
+ * 3. The stub detects MCP_HARNESS_ACTIVE and dynamically imports the real implementation
+ * 4. Real implementation connects to MCP servers and returns results
+ *
+ * How it works:
+ * - Harness sets MCP_HARNESS_ACTIVE=true environment variable
+ * - The mcp-client stub checks this variable at runtime
+ * - If active, stub dynamically imports the real implementation
+ * - No module interception needed - just conditional routing!
  */
 
 import { register } from 'tsx/esm/api';
@@ -17,29 +23,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { pathToFileURL } from 'url';
 import { getMcpClientManager } from './mcp-client-impl.js';
-
-/**
- * Setup module interception for callMcpTool
- */
-function setupInterception() {
-  const Module = require('module');
-  const originalRequire = Module.prototype.require;
-
-  Module.prototype.require = function (id: string) {
-    // Intercept imports of servers/mcp-client
-    if (id.includes('servers/mcp-client') || id.includes('../servers/mcp-client')) {
-      // Return our real implementation instead of the stub
-      const mcpClientImpl = require('./mcp-client-impl');
-      return {
-        callMcpTool: mcpClientImpl.callMcpTool,
-        McpToolResult: undefined,
-      };
-    }
-
-    // For all other requires, use the original
-    return originalRequire.apply(this, arguments);
-  };
-}
 
 async function main() {
   const args = process.argv.slice(2);
