@@ -8,7 +8,7 @@
  * 4. Return only summary
  */
 
-import { callMcpTool } from '../servers/mcp-client';
+import { callMcpTool } from '../runtime/mcp-client';
 
 async function main() {
   console.log('Testing MCP code execution pattern...\n');

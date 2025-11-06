@@ -1,4 +1,4 @@
-import { callMcpTool } from '../mcp-client';
+import { callMcpTool } from '../../runtime/mcp-client';
 
 interface SearchCodeParams {
   query: string;

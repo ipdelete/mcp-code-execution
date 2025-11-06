@@ -55,7 +55,7 @@ async function main() {
   console.log('   ⚠️  Server will connect on-demand when we call first tool\n');
 
   // Import the tool we need
-  const { callMcpTool } = await import('../servers/mcp-client');
+  const { callMcpTool } = await import('../runtime/mcp-client');
 
   console.log('5. Calling tool (server connects NOW, not at startup)...');
 

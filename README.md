@@ -138,7 +138,7 @@ async function main() {
   // (Agent can read tool files to understand interfaces)
 
   // 3. USE: Import and call only what you need
-  const { callMcpTool } = await import('../servers/mcp-client');
+  const { callMcpTool } = await import('../runtime/mcp-client');
 
   // Server connects on-demand here!
   const result = await callMcpTool('filesystem__list_directory', {
@@ -175,7 +175,7 @@ const results = await github.search_code({
 });
 
 // Or call MCP tools directly
-import { callMcpTool } from '../servers/mcp-client';
+import { callMcpTool } from '../runtime/mcp-client';
 
 const results = await callMcpTool('github__search_code', {
   query: 'language:typescript',
@@ -191,14 +191,13 @@ const results = await callMcpTool('github__search_code', {
 ├── mcp-config.json                 # MCP server configuration
 ├── prompts/                        # Prompt examples for AI agents
 ├── runtime/                        # Execution harness
-│   ├── harness.ts                  # Main harness (sets env var, runs scripts)
-│   └── mcp-client-impl.ts          # Real MCP client implementation
+│   ├── harness.ts                  # Main harness (initializes MCP, runs scripts)
+│   └── mcp-client.ts               # MCP client implementation
 ├── servers/                        # MCP server TypeScript wrappers
-│   ├── github-mcp/                 # GitHub MCP server tools
-│   │   ├── search_code.ts          # Code search wrapper
-│   │   ├── get_file_contents.ts    # File access wrapper
-│   │   └── index.ts                # Public API
-│   └── mcp-client.ts               # Stub (routes to impl at runtime)
+│   └── github-mcp/                 # GitHub MCP server tools
+│       ├── search_code.ts          # Code search wrapper
+│       ├── get_file_contents.ts    # File access wrapper
+│       └── index.ts                # Public API
 └── workspace/                      # Your scripts go here
     ├── example-data-processing.ts  # Complete example
     └── test-filesystem.ts          # Simple test
@@ -208,22 +207,22 @@ const results = await callMcpTool('github__search_code', {
 
 ### How It Works
 
-The implementation uses **environment variable routing** instead of module interception:
+The implementation uses **direct imports** with progressive disclosure:
 
 1. **Agent explores filesystem** - Reads `./servers/` to discover available servers
 2. **Agent reads tool definitions** - Opens specific tool files to understand interfaces
-3. **Agent writes code** - Imports from `servers/mcp-client.ts` only what it needs
-4. **Harness starts** - Sets `MCP_HARNESS_ACTIVE=true`, loads config (no connections yet!)
-5. **First tool call** - `callMcpTool()` checks env var, dynamically imports real implementation
+3. **Agent writes code** - Imports from `runtime/mcp-client` only what it needs
+4. **Harness starts** - Initializes MCP client manager, loads config (no connections yet!)
+5. **First tool call** - `callMcpTool()` is called from your script
 6. **Lazy connection** - Server connects **on-demand** via stdio when first tool is called
 7. **Results flow back** - Returned to your code as normal function results
 8. **Process locally** - Data never enters model context
 9. **Return summary** - Only summary flows back to model
 
 **Key insights:**
-- No module interception needed - just env var check + dynamic import
+- No complex routing needed - direct function calls to MCP client
 - Nothing loads upfront! Agents discover by reading files, servers connect on-demand
-- The stub in `servers/mcp-client.ts` does the routing automatically
+- Simple, straightforward architecture with progressive disclosure
 
 ### For Developers
 
@@ -244,7 +243,7 @@ The implementation uses **environment variable routing** instead of module inter
 2. Create wrappers in `servers/your-server/`:
    ```typescript
    // servers/your-server/your_tool.ts
-   import { callMcpTool } from '../mcp-client';
+   import { callMcpTool } from '../../runtime/mcp-client';
 
    export async function your_tool(params: YourParams) {
      return callMcpTool('your-server__your_tool', params);
@@ -286,7 +285,7 @@ const toolCode = fs.readFileSync('./servers/filesystem/list_directory.ts');
 // ~100 bytes read, understands interface
 
 // STEP 3: Agent uses it
-import { callMcpTool } from '../servers/mcp-client';
+import { callMcpTool } from '../runtime/mcp-client';
 
 // Server connects ON-DEMAND here (not at startup!)
 const listing = await callMcpTool('filesystem__list_directory', {

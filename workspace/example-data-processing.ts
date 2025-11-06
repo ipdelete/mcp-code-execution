@@ -20,7 +20,7 @@
  *   - Total: ~1.1KB tokens (98.5% reduction!)
  */
 
-import { callMcpTool } from '../servers/mcp-client';
+import { callMcpTool } from '../runtime/mcp-client';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 

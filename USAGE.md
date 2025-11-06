@@ -43,7 +43,7 @@ npm run exec workspace/example-data-processing.ts
 Create `workspace/my-script.ts`:
 
 ```typescript
-import { callMcpTool } from '../servers/mcp-client';
+import { callMcpTool } from '../runtime/mcp-client';
 
 async function main() {
   try {

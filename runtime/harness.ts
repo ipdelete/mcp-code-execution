@@ -6,23 +6,23 @@
  * This harness executes TypeScript code with MCP tool call routing.
  * It implements the pattern from "Code Execution with MCP" where:
  *
- * 1. Agent writes code that imports from ./servers/
- * 2. Code calls callMcpTool() from servers/mcp-client
- * 3. The stub detects MCP_HARNESS_ACTIVE and dynamically imports the real implementation
- * 4. Real implementation connects to MCP servers and returns results
+ * 1. Agent writes code that imports from ./runtime/mcp-client
+ * 2. Code calls callMcpTool() which connects to MCP servers on-demand
+ * 3. MCP servers provide tools via the Model Context Protocol
+ * 4. Results are processed locally and only summaries flow through context
  *
  * How it works:
- * - Harness sets MCP_HARNESS_ACTIVE=true environment variable
- * - The mcp-client stub checks this variable at runtime
- * - If active, stub dynamically imports the real implementation
- * - No module interception needed - just conditional routing!
+ * - Harness initializes MCP client manager (loads config)
+ * - Scripts import callMcpTool() directly from runtime/mcp-client
+ * - Servers connect on-demand when first tool is called
+ * - Progressive disclosure reduces token usage by 98.7%
  */
 
 import { register } from 'tsx/esm/api';
 import * as path from 'path';
 import * as fs from 'fs';
 import { pathToFileURL } from 'url';
-import { getMcpClientManager } from './mcp-client-impl.js';
+import { getMcpClientManager } from './mcp-client.js';
 
 async function main() {
   const args = process.argv.slice(2);
@@ -42,9 +42,6 @@ async function main() {
     console.error(`Error: Script not found: ${scriptPath}`);
     process.exit(1);
   }
-
-  // Set environment variable to indicate harness is active
-  process.env.MCP_HARNESS_ACTIVE = 'true';
 
   console.error(`[Harness] Loading MCP configuration...`);
 
