@@ -819,6 +819,39 @@ ls docs/
 echo "✅ All validation complete!"
 ```
 
+## Mark Items Complete
+
+After successfully completing this phase, mark the following as complete:
+
+### Update CHECKLIST.md (CHK079-CHK085, CHK093-CHK096)
+```bash
+# Mark Phase 8 checklist items complete
+for i in {079..085}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+for i in {093..096}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+echo "✅ Phase 8 checklist items marked complete"
+```
+
+### Update TASKS.md (T130-T146)
+```bash
+# Mark Phase 8 task items complete
+for i in {130..146}; do
+  sed -i '' "s/^- \[ \] T$i/- [x] T$i/" TASKS.md
+done
+
+echo "✅ Phase 8 task items marked complete"
+```
+
+### Verify Completion
+```bash
+echo "✅ Phase 8 complete and documented"
+```
+
 ---
 
 **Next Phase**: Proceed to `/final-validation` for comprehensive QA

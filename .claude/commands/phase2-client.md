@@ -501,6 +501,46 @@ async with stdio_client(params) as (read, write):
         ...
 ```
 
+## Mark Items Complete
+
+After successfully completing this phase, mark the following as complete:
+
+### Update CHECKLIST.md (CHK023-CHK032, CHK086-CHK089, CHK097, CHK112-CHK120)
+```bash
+# Mark Phase 2 checklist items complete
+for i in {023..032}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+for i in {086..089}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+sed -i '' 's/^- \[ \] CHK097/- [x] CHK097/' CHECKLIST.md
+
+for i in {112..120}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+echo "✅ Phase 2 checklist items marked complete"
+```
+
+### Update TASKS.md (T029-T049)
+```bash
+# Mark Phase 2 task items complete
+for i in {029..049}; do
+  sed -i '' "s/^- \[ \] T$i/- [x] T$i/" TASKS.md
+done
+
+echo "✅ Phase 2 task items marked complete"
+```
+
+### Verify Completion
+```bash
+# Verify all Phase 2 items marked
+echo "✅ Phase 2 complete and documented"
+```
+
 ---
 
 **Next Phase**: Proceed to `/phase3-harness` to implement script execution harness

@@ -204,6 +204,49 @@ Only proceed to Phase 1 if:
 3. Response structure is predictable
 4. Defensive unwrapping pattern is clear
 
+## Mark Items Complete
+
+After successfully completing this phase, mark the following as complete:
+
+### Update CHECKLIST.md (CHK011-CHK015)
+```bash
+# Mark checklist items complete
+sed -i '' 's/^- \[ \] CHK011/- [x] CHK011/' CHECKLIST.md
+sed -i '' 's/^- \[ \] CHK012/- [x] CHK012/' CHECKLIST.md
+sed -i '' 's/^- \[ \] CHK013/- [x] CHK013/' CHECKLIST.md
+sed -i '' 's/^- \[ \] CHK014/- [x] CHK014/' CHECKLIST.md
+sed -i '' 's/^- \[ \] CHK015/- [x] CHK015/' CHECKLIST.md
+
+echo "✅ Phase 0 checklist items marked complete"
+```
+
+### Update TASKS.md (T001-T011)
+```bash
+# Mark task items complete
+sed -i '' 's/^- \[ \] T001/- [x] T001/' TASKS.md
+sed -i '' 's/^- \[ \] T002/- [x] T002/' TASKS.md
+sed -i '' 's/^- \[ \] T003/- [x] T003/' TASKS.md
+sed -i '' 's/^- \[ \] T004/- [x] T004/' TASKS.md
+sed -i '' 's/^- \[ \] T005/- [x] T005/' TASKS.md
+sed -i '' 's/^- \[ \] T006/- [x] T006/' TASKS.md
+sed -i '' 's/^- \[ \] T007/- [x] T007/' TASKS.md
+sed -i '' 's/^- \[ \] T008/- [x] T008/' TASKS.md
+sed -i '' 's/^- \[ \] T009/- [x] T009/' TASKS.md
+sed -i '' 's/^- \[ \] T010/- [x] T010/' TASKS.md
+sed -i '' 's/^- \[ \] T011/- [x] T011/' TASKS.md
+
+echo "✅ Phase 0 task items marked complete"
+```
+
+### Verify Completion
+```bash
+# Verify all Phase 0 items marked
+grep "CHK01[1-5]" CHECKLIST.md | grep "\[x\]" | wc -l  # Should be 5
+grep "T00[1-9]\|T01[01]" TASKS.md | grep "\[x\]" | wc -l  # Should be 11
+
+echo "✅ Phase 0 complete and documented"
+```
+
 ---
 
 **Next Phase**: If GO decision, proceed to `/phase1-setup`

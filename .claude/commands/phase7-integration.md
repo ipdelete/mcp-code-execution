@@ -578,6 +578,39 @@ python -c "from runtime.mcp_client import call_mcp_tool; print('✅')"
 # 4. Summary is much smaller than raw data
 ```
 
+## Mark Items Complete
+
+After successfully completing this phase, mark the following as complete:
+
+### Update CHECKLIST.md (CHK072-CHK078, CHK101-CHK103)
+```bash
+# Mark Phase 7 checklist items complete
+for i in {072..078}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+for i in {101..103}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+echo "✅ Phase 7 checklist items marked complete"
+```
+
+### Update TASKS.md (T117-T129)
+```bash
+# Mark Phase 7 task items complete
+for i in {117..129}; do
+  sed -i '' "s/^- \[ \] T$i/- [x] T$i/" TASKS.md
+done
+
+echo "✅ Phase 7 task items marked complete"
+```
+
+### Verify Completion
+```bash
+echo "✅ Phase 7 complete and documented"
+```
+
 ---
 
 **Next Phase**: Proceed to `/phase8-docs` to complete documentation

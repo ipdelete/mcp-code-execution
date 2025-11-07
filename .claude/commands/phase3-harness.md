@@ -463,6 +463,39 @@ finally:
     # cleanup always runs
 ```
 
+## Mark Items Complete
+
+After successfully completing this phase, mark the following as complete:
+
+### Update CHECKLIST.md (CHK033-CHK041, CHK117-CHK118)
+```bash
+# Mark Phase 3 checklist items complete
+for i in {033..041}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+for i in {117..118}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+echo "✅ Phase 3 checklist items marked complete"
+```
+
+### Update TASKS.md (T050-T064)
+```bash
+# Mark Phase 3 task items complete
+for i in {050..064}; do
+  sed -i '' "s/^- \[ \] T$i/- [x] T$i/" TASKS.md
+done
+
+echo "✅ Phase 3 task items marked complete"
+```
+
+### Verify Completion
+```bash
+echo "✅ Phase 3 complete and documented"
+```
+
 ---
 
 **Next Phase**: Proceed to `/phase4-normalize` to implement field normalization

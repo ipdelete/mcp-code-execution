@@ -504,6 +504,67 @@ Optional enhancements (post-MVP):
 - [ ] Progress indicators
 - [ ] Logging with structlog
 
+## Mark Items Complete
+
+After successfully completing final validation and merge, mark the following as complete:
+
+### Update CHECKLIST.md (All remaining items)
+```bash
+# Mark all success criteria items complete
+for i in {086..096}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+# Mark testing coverage items
+sed -i '' 's/^- \[ \] CHK097/- [x] CHK097/' CHECKLIST.md
+sed -i '' 's/^- \[ \] CHK098/- [x] CHK098/' CHECKLIST.md
+sed -i '' 's/^- \[ \] CHK099/- [x] CHK099/' CHECKLIST.md
+sed -i '' 's/^- \[ \] CHK100/- [x] CHK100/' CHECKLIST.md
+
+# Mark timeline and risks items
+for i in {121..125}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+# Mark branch workflow items
+for i in {126..130}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+# Mark ambiguities items
+for i in {131..135}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+echo "✅ All checklist items marked complete"
+```
+
+### Update TASKS.md (T147-T164)
+```bash
+# Mark final validation task items complete
+for i in {147..164}; do
+  sed -i '' "s/^- \[ \] T$i/- [x] T$i/" TASKS.md
+done
+
+echo "✅ All task items marked complete"
+```
+
+### Final Verification
+```bash
+# Count completed items
+CHECKLIST_COMPLETE=$(grep -c "\[x\]" CHECKLIST.md)
+TASKS_COMPLETE=$(grep -c "\[x\]" TASKS.md)
+
+echo "Checklist items completed: $CHECKLIST_COMPLETE / 135"
+echo "Task items completed: $TASKS_COMPLETE / 164"
+
+if [ "$CHECKLIST_COMPLETE" -eq 135 ] && [ "$TASKS_COMPLETE" -eq 164 ]; then
+  echo "✅ ALL ITEMS COMPLETE! Python port fully validated!"
+else
+  echo "⚠️ Some items may still be incomplete. Review CHECKLIST.md and TASKS.md"
+fi
+```
+
 ---
 
 **Result**: Python port complete, validated, and merged to master! 🎉

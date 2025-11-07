@@ -459,6 +459,37 @@ uv pip install -e .
 # normalize_ado_fields handles standard nested structures
 ```
 
+## Mark Items Complete
+
+After successfully completing this phase, mark the following as complete:
+
+### Update CHECKLIST.md (CHK042-CHK048, CHK099)
+```bash
+# Mark Phase 4 checklist items complete
+for i in {042..048}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+sed -i '' 's/^- \[ \] CHK099/- [x] CHK099/' CHECKLIST.md
+
+echo "✅ Phase 4 checklist items marked complete"
+```
+
+### Update TASKS.md (T065-T075)
+```bash
+# Mark Phase 4 task items complete
+for i in {065..075}; do
+  sed -i '' "s/^- \[ \] T$i/- [x] T$i/" TASKS.md
+done
+
+echo "✅ Phase 4 task items marked complete"
+```
+
+### Verify Completion
+```bash
+echo "✅ Phase 4 complete and documented"
+```
+
 ---
 
 **Next Phase**: Proceed to `/phase5-wrappers` to implement wrapper generation

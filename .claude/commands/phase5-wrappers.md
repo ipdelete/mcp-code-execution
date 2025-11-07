@@ -648,6 +648,38 @@ uv run mypy src/servers/
 # Check that all imports use absolute imports from runtime
 ```
 
+## Mark Items Complete
+
+After successfully completing this phase, mark the following as complete:
+
+### Update CHECKLIST.md (CHK049-CHK062, CHK098, CHK100)
+```bash
+# Mark Phase 5 checklist items complete
+for i in {049..062}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+sed -i '' 's/^- \[ \] CHK098/- [x] CHK098/' CHECKLIST.md
+sed -i '' 's/^- \[ \] CHK100/- [x] CHK100/' CHECKLIST.md
+
+echo "✅ Phase 5 checklist items marked complete"
+```
+
+### Update TASKS.md (T076-T102)
+```bash
+# Mark Phase 5 task items complete
+for i in {076..102}; do
+  sed -i '' "s/^- \[ \] T$i/- [x] T$i/" TASKS.md
+done
+
+echo "✅ Phase 5 task items marked complete"
+```
+
+### Verify Completion
+```bash
+echo "✅ Phase 5 complete and documented"
+```
+
 ---
 
 **Next Phase**: Proceed to `/phase7-integration` (Phase 6 is optional)

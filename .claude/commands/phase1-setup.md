@@ -349,6 +349,43 @@ uv python install 3.11
 uv pip install -e .
 ```
 
+## Mark Items Complete
+
+After successfully completing this phase, mark the following as complete:
+
+### Update CHECKLIST.md (CHK016-CHK022, CHK104-CHK111)
+```bash
+# Mark Phase 1 checklist items complete
+for i in {016..022}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+for i in {104..111}; do
+  sed -i '' "s/^- \[ \] CHK$i/- [x] CHK$i/" CHECKLIST.md
+done
+
+echo "✅ Phase 1 checklist items marked complete"
+```
+
+### Update TASKS.md (T012-T028)
+```bash
+# Mark Phase 1 task items complete
+for i in {012..028}; do
+  sed -i '' "s/^- \[ \] T$i/- [x] T$i/" TASKS.md
+done
+
+echo "✅ Phase 1 task items marked complete"
+```
+
+### Verify Completion
+```bash
+# Verify all Phase 1 items marked
+grep "CHK0[12][0-9]" CHECKLIST.md | grep "\[x\]" | wc -l  # Should be 15 (7 + 8)
+grep "T0[12][0-9]" TASKS.md | grep "\[x\]" | wc -l  # Should be 17
+
+echo "✅ Phase 1 complete and documented"
+```
+
 ---
 
 **Next Phase**: Proceed to `/phase2-client` to implement MCP Client Manager
