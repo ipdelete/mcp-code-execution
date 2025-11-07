@@ -64,23 +64,23 @@ branch: python-port
 
 ### Tasks
 
-- [ ] T012 [P] Move TypeScript files to `_typescript_reference/runtime/` for reference
-- [ ] T013 [P] Move TypeScript test files to `_typescript_reference/tests/`
-- [ ] T014 [P] Initialize uv project: `uv init --lib --name mcp-execution`
-- [ ] T015 [P] Pin Python version: `uv python pin 3.11` and create `.python-version`
-- [ ] T016 Create `pyproject.toml` with project metadata and dependencies (mcp>=1.0.0, pydantic>=2.0.0, aiofiles>=23.0.0)
-- [ ] T017 Add dev dependencies to `pyproject.toml` (black>=24.0.0, mypy>=1.8.0, ruff>=0.2.0, pytest>=8.0.0, pytest-asyncio>=0.23.0)
-- [ ] T018 Configure black in `pyproject.toml` (line-length = 100)
-- [ ] T019 Configure mypy in `pyproject.toml` (strict = true, python_version = "3.11")
-- [ ] T020 Configure ruff in `pyproject.toml` (line-length = 100, target-version = "py311")
-- [ ] T021 [P] Update `.gitignore` for Python artifacts (__pycache__, *.pyc, .pytest_cache/, .mypy_cache/, .ruff_cache/, *.egg-info/, dist/, build/, .uv/, .venv/)
-- [ ] T022 [P] Create directory structure: `mkdir -p src/runtime src/servers tests/unit tests/integration workspace`
-- [ ] T023 [P] Create package markers: `touch src/runtime/__init__.py src/servers/__init__.py tests/__init__.py`
-- [ ] T024 Create error hierarchy in `src/runtime/exceptions.py` (McpExecutionError, ServerConnectionError, ToolNotFoundError, ToolExecutionError, ConfigurationError, SchemaValidationError)
-- [ ] T025 Create config models in `src/runtime/config.py` (ServerConfig, McpConfig with Pydantic)
-- [ ] T026 Run `uv sync` to generate uv.lock file
-- [ ] T027 Install project in editable mode with dev dependencies: `uv pip install -e ".[dev]"`
-- [ ] T028 Validate project structure: verify all directories and files exist
+- [x] T012 [P] Move TypeScript files to `_typescript_reference/runtime/` for reference
+- [x] T013 [P] Move TypeScript test files to `_typescript_reference/tests/`
+- [x] T014 [P] Initialize uv project: `uv init --lib --name mcp-execution`
+- [x] T015 [P] Pin Python version: `uv python pin 3.11` and create `.python-version`
+- [x] T016 Create `pyproject.toml` with project metadata and dependencies (mcp>=1.0.0, pydantic>=2.0.0, aiofiles>=23.0.0)
+- [x] T017 Add dev dependencies to `pyproject.toml` (black>=24.0.0, mypy>=1.8.0, ruff>=0.2.0, pytest>=8.0.0, pytest-asyncio>=0.23.0)
+- [x] T018 Configure black in `pyproject.toml` (line-length = 100)
+- [x] T019 Configure mypy in `pyproject.toml` (strict = true, python_version = "3.11")
+- [x] T020 Configure ruff in `pyproject.toml` (line-length = 100, target-version = "py311")
+- [x] T021 [P] Update `.gitignore` for Python artifacts (__pycache__, *.pyc, .pytest_cache/, .mypy_cache/, .ruff_cache/, *.egg-info/, dist/, build/, .uv/, .venv/)
+- [x] T022 [P] Create directory structure: `mkdir -p src/runtime src/servers tests/unit tests/integration workspace`
+- [x] T023 [P] Create package markers: `touch src/runtime/__init__.py src/servers/__init__.py tests/__init__.py`
+- [x] T024 Create error hierarchy in `src/runtime/exceptions.py` (McpExecutionError, ServerConnectionError, ToolNotFoundError, ToolExecutionError, ConfigurationError, SchemaValidationError)
+- [x] T025 Create config models in `src/runtime/config.py` (ServerConfig, McpConfig with Pydantic)
+- [x] T026 Run `uv sync` to generate uv.lock file
+- [x] T027 Install project in editable mode with dev dependencies: `uv pip install -e ".[dev]"`
+- [x] T028 Validate project structure: verify all directories and files exist
 
 **Validation**: CHK016-CHK022, CHK104-CHK111
 

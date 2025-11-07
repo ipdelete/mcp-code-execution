@@ -36,13 +36,13 @@
 
 ## Phase 1: Project Setup
 
-- [ ] CHK016 - Does pyproject.toml include all required dependencies (mcp>=1.0.0, pydantic>=2.0.0, aiofiles>=23.0.0)? [Completeness, Plan §Phase 1 Tasks]
-- [ ] CHK017 - Are dev dependencies complete (black, mypy, ruff, pytest, pytest-asyncio)? [Completeness, Plan §Phase 1 Tasks]
-- [ ] CHK018 - Is the .gitignore configured for both Python artifacts and generated servers/? [Completeness, Plan §Phase 1 Tasks]
-- [ ] CHK019 - Does src/runtime/exceptions.py cover all error scenarios (connection, tool not found, execution, config, schema)? [Completeness, Plan §Phase 1 Tasks]
-- [ ] CHK020 - Does src/runtime/config.py use Pydantic for config validation? [Consistency, Plan §Phase 1 Tasks]
-- [ ] CHK021 - Is the TypeScript reference strategy (move to _typescript_reference/) clearly documented? [Clarity, Plan §Phase 1 Tasks]
-- [ ] CHK022 - Are all directory structures (src/runtime, src/servers, tests/, workspace/) created? [Completeness, Plan §Phase 1 Tasks]
+- [x] CHK016 - Does pyproject.toml include all required dependencies (mcp>=1.0.0, pydantic>=2.0.0, aiofiles>=23.0.0)? [Completeness, Plan §Phase 1 Tasks]
+- [x] CHK017 - Are dev dependencies complete (black, mypy, ruff, pytest, pytest-asyncio)? [Completeness, Plan §Phase 1 Tasks]
+- [x] CHK018 - Is the .gitignore configured for both Python artifacts and generated servers/? [Completeness, Plan §Phase 1 Tasks]
+- [x] CHK019 - Does src/runtime/exceptions.py cover all error scenarios (connection, tool not found, execution, config, schema)? [Completeness, Plan §Phase 1 Tasks]
+- [x] CHK020 - Does src/runtime/config.py use Pydantic for config validation? [Consistency, Plan §Phase 1 Tasks]
+- [x] CHK021 - Is the TypeScript reference strategy (move to _typescript_reference/) clearly documented? [Clarity, Plan §Phase 1 Tasks]
+- [x] CHK022 - Are all directory structures (src/runtime, src/servers, tests/, workspace/) created? [Completeness, Plan §Phase 1 Tasks]
 
 ## Phase 2: MCP Client Manager
 
@@ -154,14 +154,14 @@
 
 ## Dependencies & Configuration
 
-- [ ] CHK104 - Is mcp>=1.0.0 dependency version constraint appropriate? [Clarity, Plan §Dependencies]
-- [ ] CHK105 - Is pydantic>=2.0.0 dependency version constraint appropriate? [Clarity, Plan §Dependencies]
-- [ ] CHK106 - Are all dev dependencies listed with version constraints? [Completeness, Plan §Dependencies]
-- [ ] CHK107 - Is pyproject.toml compatible with uv package manager? [Consistency, Plan §Dependencies]
-- [ ] CHK108 - Is .python-version set to 3.11+? [Completeness, Plan §Phase 1]
-- [ ] CHK109 - Does black configuration use line-length = 100? [Consistency, Plan §Phase 1]
-- [ ] CHK110 - Does mypy configuration use strict = true? [Consistency, Plan §Phase 1]
-- [ ] CHK111 - Does ruff configuration target Python 3.11? [Consistency, Plan §Phase 1]
+- [x] CHK104 - Is mcp>=1.0.0 dependency version constraint appropriate? [Clarity, Plan §Dependencies]
+- [x] CHK105 - Is pydantic>=2.0.0 dependency version constraint appropriate? [Clarity, Plan §Dependencies]
+- [x] CHK106 - Are all dev dependencies listed with version constraints? [Completeness, Plan §Dependencies]
+- [x] CHK107 - Is pyproject.toml compatible with uv package manager? [Consistency, Plan §Dependencies]
+- [x] CHK108 - Is .python-version set to 3.11+? [Completeness, Plan §Phase 1]
+- [x] CHK109 - Does black configuration use line-length = 100? [Consistency, Plan §Phase 1]
+- [x] CHK110 - Does mypy configuration use strict = true? [Consistency, Plan §Phase 1]
+- [x] CHK111 - Does ruff configuration target Python 3.11? [Consistency, Plan §Phase 1]
 
 ## Error Handling & Edge Cases
 
