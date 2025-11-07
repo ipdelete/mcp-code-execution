@@ -251,7 +251,7 @@ async function getServerTools(serverName: string, config: ServerConfig): Promise
 /**
  * Main generation function
  */
-async function generateWrappers() {
+export async function generateWrappers() {
   console.log('MCP Wrapper Generator\n');
 
   // Load config
@@ -306,10 +306,8 @@ async function generateWrappers() {
   console.log('✨ Wrapper generation complete!');
 }
 
-// Run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  generateWrappers().catch(error => {
-    console.error('Generation failed:', error);
-    process.exit(1);
-  });
-}
+// Run if called directly (auto-execute when run as a script)
+generateWrappers().catch(error => {
+  console.error('Generation failed:', error);
+  process.exit(1);
+});
