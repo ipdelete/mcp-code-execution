@@ -228,6 +228,41 @@ const result = await some_tool({ param: 'value' });
 | **Type Safety** | Manual definitions | Auto-generated from schemas |
 | **Context Pollution** | High (raw API responses) | Minimal (summaries only) |
 
+## Writing Scripts
+
+All scripts in `tests/` must follow these conventions:
+
+### Process Exit Handling
+
+**ALWAYS include proper exit codes** to ensure scripts terminate cleanly:
+
+```typescript
+async function main() {
+  // Your logic here
+}
+
+main().then(() => {
+  process.exit(0);
+}).catch((error) => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});
+```
+
+### Error Handling
+
+- Wrap API calls in try-catch blocks
+- Handle both success (`process.exit(0)`) and failure (`process.exit(1)`) cases
+- Log errors clearly before exiting
+
+### Data Safety
+
+- Check if API responses are arrays before using array methods
+- Handle both `response.value` and direct array returns
+- Provide fallbacks for nested field access
+
+See `tests/list-team-features.ts` for a complete example.
+
 ## Scripts
 
 - `npm run generate` - Generate TypeScript wrappers for all configured servers
