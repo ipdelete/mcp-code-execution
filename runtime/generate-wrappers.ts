@@ -10,6 +10,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { NORMALIZATION_CONFIG } from './normalize-fields.js';
 
 interface ServerConfig {
   command: string;
@@ -192,6 +193,13 @@ function generateToolWrapper(serverName: string, tool: Tool): string {
 
   // Import statement
   lines.push("import { callMcpTool } from '../../runtime/mcp-client';");
+  
+  // Add normalization import for servers that need it
+  const needsNormalization = NORMALIZATION_CONFIG[serverName] && NORMALIZATION_CONFIG[serverName] !== 'none';
+  if (needsNormalization) {
+    lines.push("import { normalizeFieldNames } from '../../runtime/normalize-fields';");
+  }
+  
   lines.push('');
 
   // Generate parameter interface
@@ -216,13 +224,29 @@ function generateToolWrapper(serverName: string, tool: Tool): string {
   const toolIdentifier = `${serverName}__${functionName}`;
   lines.push(`export async function ${functionName}(params: ${paramsInterfaceName}): Promise<${resultInterfaceName}> {`);
   
+  // Check if this server needs field normalization
+  const serverNeedsNormalization = NORMALIZATION_CONFIG[serverName] && NORMALIZATION_CONFIG[serverName] !== 'none';
+  
   if (!tool.outputSchema?.properties) {
     // Add defensive unwrapping for tools without outputSchema
     lines.push(`  const response = await callMcpTool<${resultInterfaceName}>('${toolIdentifier}', params);`);
     lines.push(`  // Defensive unwrapping: handle both wrapped (response.value) and direct responses`);
-    lines.push(`  return (response as any)?.value || response;`);
+    const unwrapped = `(response as any)?.value || response`;
+    if (serverNeedsNormalization) {
+      lines.push(`  const unwrapped = ${unwrapped};`);
+      lines.push(`  // Normalize field names to consistent casing`);
+      lines.push(`  return normalizeFieldNames(unwrapped, '${serverName}');`);
+    } else {
+      lines.push(`  return ${unwrapped};`);
+    }
   } else {
-    lines.push(`  return await callMcpTool<${resultInterfaceName}>('${toolIdentifier}', params);`);
+    if (serverNeedsNormalization) {
+      lines.push(`  const response = await callMcpTool<${resultInterfaceName}>('${toolIdentifier}', params);`);
+      lines.push(`  // Normalize field names to consistent casing`);
+      lines.push(`  return normalizeFieldNames(response, '${serverName}');`);
+    } else {
+      lines.push(`  return await callMcpTool<${resultInterfaceName}>('${toolIdentifier}', params);`);
+    }
   }
   
   lines.push('}');
