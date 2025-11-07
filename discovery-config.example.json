@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Configuration for MCP schema discovery. Copy this to discovery-config.json and customize with your own project names, work item IDs, etc.",
+  "servers": {
+    "ado": {
+      "description": "Azure DevOps MCP server - configure safe read-only tools here",
+      "safeTools": {
+        "wit_get_work_item": {
+          "description": "Get work item details - discovers the structure of work items with all fields and relations",
+          "sampleParams": {
+            "id": 123456,
+            "project": "Your Project Name",
+            "expand": "relations"
+          }
+        },
+        "search_workitem": {
+          "description": "Search for work items - discovers the search result structure",
+          "sampleParams": {
+            "searchText": "feature",
+            "project": ["Your Project Name"],
+            "top": 5
+          }
+        },
+        "wit_list_backlogs": {
+          "description": "List backlogs - discovers backlog metadata structure",
+          "sampleParams": {
+            "project": "Your Project Name",
+            "team": "Your Team Name"
+          }
+        },
+        "wit_list_backlog_work_items": {
+          "description": "List work items in a backlog - discovers work item list structure",
+          "sampleParams": {
+            "project": "Your Project Name",
+            "team": "Your Team Name",
+            "backlogId": "Microsoft.FeatureCategory"
+          }
+        },
+        "core_list_projects": {
+          "description": "List all projects - discovers project structure",
+          "sampleParams": {}
+        },
+        "core_list_project_teams": {
+          "description": "List teams in a project - discovers team structure",
+          "sampleParams": {
+            "project": "Your Project Name"
+          }
+        },
+        "repo_list_repos_by_project": {
+          "description": "List repositories - discovers repository structure",
+          "sampleParams": {
+            "project": "Your Project Name"
+          }
+        },
+        "pipelines_get_build_definitions": {
+          "description": "List build definitions - discovers pipeline definition structure",
+          "sampleParams": {
+            "project": "Your Project Name"
+          }
+        }
+      },
+      "dangerousTools": {
+        "_comment": "These tools are listed here as a reminder - they should NEVER be added to safeTools",
+        "_examples": [
+          "wit_create_work_item",
+          "wit_update_work_item",
+          "repo_create_pull_request",
+          "pipelines_run_pipeline",
+          "wit_delete_work_item"
+        ]
+      }
+    },
+    "sequential-thinking": {
+      "description": "Sequential thinking MCP server - generally safe but may consume tokens",
+      "safeTools": {
+        "_comment": "Add tools here if you want to discover their schemas"
+      }
+    }
+  },
+  "options": {
+    "makeFieldsOptional": true,
+    "description": "All discovered fields will be marked as optional since API responses vary by context, permissions, and work item types"
+  }
+}

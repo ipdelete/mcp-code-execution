@@ -175,6 +175,24 @@ import { search_code } from '../servers/github';
 const results = await search_code({ q: 'language:typescript MCP', per_page: 10 });
 ```
 
+### Schema Discovery for APIs Without Schemas
+
+Many MCP servers don't provide output schemas because the underlying APIs lack formal specifications. The **schema discovery** feature lets you generate TypeScript types from actual API responses:
+
+1. Configure safe (read-only) tools in `discovery-config.json`
+2. Run `npm run discover-schemas`
+3. Import types from `servers/{server-name}/discovered-types.ts`
+
+```typescript
+import { wit_get_work_item } from '../servers/ado';
+import type { WitGetWorkItemResult } from '../servers/ado/discovered-types';
+
+const workItem = await wit_get_work_item({ id: 123, project: 'MyProject' }) as WitGetWorkItemResult;
+const title = workItem.fields?.['System.Title']; // IntelliSense support!
+```
+
+**Note**: Discovered types are optional hints. Always use defensive coding patterns (see `.claude/agents/developer.md` for details).
+
 ## Advanced Usage
 
 ### Direct API Calls
@@ -284,12 +302,14 @@ See `tests/list-team-features.ts` for a complete example.
 ## Scripts
 
 - `npm run generate` - Generate TypeScript wrappers for all configured servers
+- `npm run discover-schemas` - Generate TypeScript types from actual API responses
 - `npm run exec <script>` - Execute a TypeScript script with MCP support
 - `npm run build` - Compile TypeScript to JavaScript
 
 ## Example Scripts
 
 - `tests/example-progressive-disclosure.ts` - Complete demonstration of the pattern
+- `tests/example-discovered-types.ts` - Using discovered types with defensive coding
 - `tests/test-generated-wrappers.ts` - Validates auto-generated wrapper functions
 
 ## Requirements

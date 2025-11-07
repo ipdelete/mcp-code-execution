@@ -7,3 +7,6 @@ dist/
 
 # Generated server wrappers (run 'npm run generate' to create)
 servers/*/
+
+# User-specific discovery config (contains real project names, IDs)
+discovery-config.json
