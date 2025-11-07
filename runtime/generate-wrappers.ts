@@ -29,6 +29,11 @@ interface Tool {
     properties?: Record<string, any>;
     required?: string[];
   };
+  outputSchema?: {
+    type: string;
+    properties?: Record<string, any>;
+    required?: string[];
+  };
 }
 
 /**
@@ -118,6 +123,28 @@ function generateInterface(schema: any, interfaceName: string): string {
 }
 
 /**
+ * Generate result interface from outputSchema if available
+ */
+function generateResultInterface(tool: Tool): string {
+  const resultInterfaceName = toPascalCase(tool.name) + 'Result';
+  const lines: string[] = [];
+
+  lines.push(`interface ${resultInterfaceName} {`);
+  
+  // Use outputSchema if available!
+  if (tool.outputSchema?.properties) {
+    console.log(`    ✓ Using outputSchema for ${tool.name}`);
+    lines.push(generateInterface(tool.outputSchema, resultInterfaceName));
+  } else {
+    // Generic fallback for servers without outputSchema
+    lines.push('  [key: string]: any;');
+  }
+  
+  lines.push('}');
+  return lines.join('\n');
+}
+
+/**
  * Generate JSDoc comment from tool description
  */
 function generateJSDoc(tool: Tool, paramsInterfaceName: string): string {
@@ -134,8 +161,15 @@ function generateJSDoc(tool: Tool, paramsInterfaceName: string): string {
   }
 
   lines.push(' *');
+  
+  // Add response structure hint
+  if (tool.outputSchema?.properties) {
+    lines.push(` * @returns Typed result based on MCP outputSchema`);
+  } else {
+    lines.push(` * @returns Result from ${tool.name}`);
+  }
+  
   lines.push(` * @param params - Parameters for ${tool.name}`);
-  lines.push(` * @returns Result from ${tool.name}`);
   lines.push(' */');
 
   return lines.join('\n');
@@ -166,10 +200,8 @@ function generateToolWrapper(serverName: string, tool: Tool): string {
     lines.push('');
   }
 
-  // Generate result interface (generic for now)
-  lines.push(`interface ${resultInterfaceName} {`);
-  lines.push('  [key: string]: any;');
-  lines.push('}');
+  // Generate result interface
+  lines.push(generateResultInterface(tool));
   lines.push('');
 
   // Generate JSDoc
@@ -204,8 +236,102 @@ function generateIndex(tools: Tool[]): string {
   tools.forEach(tool => {
     lines.push(`export * from './${tool.name}';`);
   });
-
+  
+  // Always export utils if it exists
+  lines.push(`export * from './utils';`);
   lines.push('');
+  return lines.join('\n');
+}
+
+/**
+ * Generate README with tool documentation
+ */
+function generateServerReadme(serverName: string, tools: Tool[]): string {
+  const lines: string[] = [];
+  
+  lines.push(`# ${serverName} MCP Tools`);
+  lines.push('');
+  lines.push(`Auto-generated TypeScript wrappers for ${serverName} MCP server.`);
+  lines.push('');
+  
+  // Count tools with outputSchema for reporting
+  const toolsWithOutputSchema = tools.filter(t => t.outputSchema?.properties).length;
+  if (toolsWithOutputSchema > 0) {
+    lines.push(`**Type Safety:** ${toolsWithOutputSchema}/${tools.length} tools have fully-typed results via outputSchema.`);
+    lines.push('');
+  }
+  
+  lines.push(`## Tools (${tools.length})`);
+  lines.push('');
+  
+  // Group tools by category (based on name prefix)
+  const categories = new Map<string, Tool[]>();
+  tools.forEach(tool => {
+    const prefix = tool.name.split('_')[0];
+    if (!categories.has(prefix)) {
+      categories.set(prefix, []);
+    }
+    categories.get(prefix)!.push(tool);
+  });
+  
+  // List tools by category
+  for (const [category, categoryTools] of categories) {
+    lines.push(`### ${category.toUpperCase()}`);
+    lines.push('');
+    
+    categoryTools.forEach(tool => {
+      const typeSafe = tool.outputSchema?.properties ? ' ✓' : '';
+      lines.push(`- \`${tool.name}()\`${typeSafe}`);
+      if (tool.description) {
+        const shortDesc = tool.description.split('\n')[0];
+        if (shortDesc.length < 100) {
+          lines.push(`  - ${shortDesc}`);
+        }
+      }
+    });
+    lines.push('');
+  }
+  
+  lines.push('## Usage');
+  lines.push('');
+  lines.push('```typescript');
+  lines.push(`import { ${tools[0]?.name || 'tool_name'} } from '../servers/${serverName}';`);
+  lines.push('');
+  lines.push(`const result = await ${tools[0]?.name || 'tool_name'}({ /* params */ });`);
+  lines.push('```');
+  lines.push('');
+  
+  return lines.join('\n');
+}
+
+/**
+ * Generate utils.ts template
+ */
+function generateUtilsTemplate(serverName: string): string {
+  const lines: string[] = [];
+  
+  lines.push('/**');
+  lines.push(` * Utility functions for working with ${serverName} MCP responses`);
+  lines.push(' */');
+  lines.push('');
+  lines.push('/**');
+  lines.push(' * Normalize response to always return an array.');
+  lines.push(' * Handles both direct arrays and value-wrapped responses.');
+  lines.push(' * ');
+  lines.push(' * @example');
+  lines.push(' * const items = toArray(await some_tool({ ... }));');
+  lines.push(' */');
+  lines.push('export function toArray<T>(response: T[] | { value: T[] } | any): T[] {');
+  lines.push('  if (Array.isArray(response)) {');
+  lines.push('    return response;');
+  lines.push('  }');
+  lines.push('  if (response && typeof response === \'object\' && \'value\' in response && Array.isArray(response.value)) {');
+  lines.push('    return response.value;');
+  lines.push('  }');
+  lines.push('  return response as T[];');
+  lines.push('}');
+  lines.push('');
+  
   return lines.join('\n');
 }
 
@@ -220,7 +346,7 @@ async function getServerTools(serverName: string, config: ServerConfig): Promise
       command: config.command,
       args: config.args,
       env: {
-        ...process.env,
+        ...(process.env as Record<string, string>),
         ...config.env,
       },
     });
@@ -282,6 +408,10 @@ export async function generateWrappers() {
       continue;
     }
 
+    // Count tools with outputSchema
+    const toolsWithOutputSchema = tools.filter(t => t.outputSchema?.properties).length;
+    console.log(`  Tools with outputSchema: ${toolsWithOutputSchema}/${tools.length}`);
+
     // Create server directory
     const serverDir = path.join(process.cwd(), 'servers', serverName);
     await fs.mkdir(serverDir, { recursive: true });
@@ -300,6 +430,25 @@ export async function generateWrappers() {
     const indexPath = path.join(serverDir, 'index.ts');
     await fs.writeFile(indexPath, indexCode);
     console.log(`    ✓ index.ts`);
+    
+    // Generate README.md
+    const readmeCode = generateServerReadme(serverName, tools);
+    const readmePath = path.join(serverDir, 'README.md');
+    await fs.writeFile(readmePath, readmeCode);
+    console.log(`    ✓ README.md`);
+    
+    // Generate utils.ts (only if it doesn't exist)
+    const utilsPath = path.join(serverDir, 'utils.ts');
+    try {
+      await fs.access(utilsPath);
+      console.log(`    ⊙ utils.ts (preserved)`);
+    } catch {
+      // File doesn't exist, create template
+      const utilsTemplate = generateUtilsTemplate(serverName);
+      await fs.writeFile(utilsPath, utilsTemplate);
+      console.log(`    ✓ utils.ts (created)`);
+    }
+    
     console.log('');
   }
 
