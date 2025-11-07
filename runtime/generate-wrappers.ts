@@ -137,6 +137,10 @@ function generateResultInterface(tool: Tool): string {
     lines.push(generateInterface(tool.outputSchema, resultInterfaceName));
   } else {
     // Generic fallback for servers without outputSchema
+    console.log(`    ⚠ No outputSchema for ${tool.name} - using generic type`);
+    lines.push('  // No outputSchema provided - response structure may vary');
+    lines.push('  // Use defensive coding: const data = response.value || response;');
+    lines.push('  value?: any;');
     lines.push('  [key: string]: any;');
   }
   
@@ -166,7 +170,8 @@ function generateJSDoc(tool: Tool, paramsInterfaceName: string): string {
   if (tool.outputSchema?.properties) {
     lines.push(` * @returns Typed result based on MCP outputSchema`);
   } else {
-    lines.push(` * @returns Result from ${tool.name}`);
+    lines.push(` * @returns Result from ${tool.name} (no outputSchema - use defensive coding)`);
+    lines.push(` * @warning Response structure unknown - always use: const data = response.value || response`);
   }
   
   lines.push(` * @param params - Parameters for ${tool.name}`);
@@ -207,10 +212,19 @@ function generateToolWrapper(serverName: string, tool: Tool): string {
   // Generate JSDoc
   lines.push(generateJSDoc(tool, paramsInterfaceName));
 
-  // Generate function
+  // Generate function with defensive unwrapping
   const toolIdentifier = `${serverName}__${functionName}`;
   lines.push(`export async function ${functionName}(params: ${paramsInterfaceName}): Promise<${resultInterfaceName}> {`);
-  lines.push(`  return await callMcpTool<${resultInterfaceName}>('${toolIdentifier}', params);`);
+  
+  if (!tool.outputSchema?.properties) {
+    // Add defensive unwrapping for tools without outputSchema
+    lines.push(`  const response = await callMcpTool<${resultInterfaceName}>('${toolIdentifier}', params);`);
+    lines.push(`  // Defensive unwrapping: handle both wrapped (response.value) and direct responses`);
+    lines.push(`  return (response as any)?.value || response;`);
+  } else {
+    lines.push(`  return await callMcpTool<${resultInterfaceName}>('${toolIdentifier}', params);`);
+  }
+  
   lines.push('}');
   lines.push('');
 

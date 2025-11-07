@@ -257,9 +257,27 @@ main().then(() => {
 
 ### Data Safety
 
-- Check if API responses are arrays before using array methods
-- Handle both `response.value` and direct array returns
-- Provide fallbacks for nested field access
+**ALWAYS use defensive coding patterns** since MCP response structures may vary:
+
+```typescript
+// Handle both wrapped and direct responses
+const data = response.value || response;
+
+// Ensure arrays before using array methods
+const items = Array.isArray(data) ? data : [];
+items.forEach(item => { /* safe */ });
+
+// Safe property access with fallbacks
+const displayName = field?.displayName || field || 'Unknown';
+
+// Combining patterns for complex scenarios
+const backlogs = Array.isArray(response.value || response) 
+  ? (response.value || response) 
+  : [];
+const featureBacklog = backlogs.find(b => b.name === 'Features');
+```
+
+**Why this matters:** Auto-generated wrappers may not have complete type information. Defensive patterns prevent runtime errors when response structures differ from expectations.
 
 See `tests/list-team-features.ts` for a complete example.
 
