@@ -9,6 +9,10 @@ model: sonnet
 
 **Tasks**: T029-T049 | **Validation**: CHK023-CHK032, CHK086-CHK089, CHK097, CHK112-CHK120
 
+## Context: Read plan.md First
+
+Review `plan.md` section: **Phase 2: Core Runtime - MCP Client Manager (lines 307-415)** for detailed implementation patterns and key features to preserve.
+
 ## Prerequisites
 
 - ✅ Phase 1 completed (project setup)

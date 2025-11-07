@@ -9,6 +9,10 @@ model: sonnet
 
 **Tasks**: T147-T164 | **Validation**: All CHK items (CHK001-CHK135)
 
+## Context: Read plan.md First
+
+Review `plan.md` sections: **Branch Workflow (lines 1200-1238)** and **Success Criteria (lines 1135-1167)** for comprehensive validation strategy and merge procedures.
+
 ## Prerequisites
 
 - ✅ All phases (0-8) completed

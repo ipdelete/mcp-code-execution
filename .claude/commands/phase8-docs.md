@@ -9,6 +9,10 @@ model: sonnet
 
 **Tasks**: T130-T146 | **Validation**: CHK079-CHK085, CHK093-CHK096
 
+## Context: Read plan.md First
+
+Review `plan.md` section: **Phase 8: Documentation & Polish (lines 1024-1082)** for documentation structure and quality check procedures.
+
 ## Prerequisites
 
 - ✅ Phases 0-7 completed (all core functionality)

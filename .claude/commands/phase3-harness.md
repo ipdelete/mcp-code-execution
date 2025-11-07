@@ -9,6 +9,10 @@ model: sonnet
 
 **Tasks**: T050-T064 | **Validation**: CHK033-CHK041, CHK117-CHK118
 
+## Context: Read plan.md First
+
+Review `plan.md` section: **Phase 3: Script Execution Harness (lines 417-535)** for detailed harness design and signal handling patterns.
+
 ## Prerequisites
 
 - ✅ Phase 2 completed (MCP Client Manager)

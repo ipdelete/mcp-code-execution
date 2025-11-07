@@ -9,6 +9,10 @@ model: sonnet
 
 **Tasks**: T001-T011 | **Validation**: CHK011-CHK015
 
+## Context: Read plan.md First
+
+Review `plan.md` section: **Phase 0: Proof of Concept (lines 76-144)** for detailed context and requirements.
+
 ## Context
 
 This is a CRITICAL BLOCKER phase. We must validate that the Python MCP SDK supports:

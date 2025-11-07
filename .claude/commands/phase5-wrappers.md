@@ -9,6 +9,10 @@ model: sonnet
 
 **Tasks**: T076-T102 | **Validation**: CHK049-CHK062, CHK098, CHK100
 
+## Context: Read plan.md First
+
+Review `plan.md` section: **Phase 5: Wrapper Generation (lines 550-705)** for comprehensive type mapping tables, schema utilities patterns, and code generation details.
+
 ## Prerequisites
 
 - ✅ Phase 2 completed (MCP Client Manager)

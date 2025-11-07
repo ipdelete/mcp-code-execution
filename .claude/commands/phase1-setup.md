@@ -9,6 +9,10 @@ model: sonnet
 
 **Tasks**: T012-T028 | **Validation**: CHK016-CHK022, CHK104-CHK111
 
+## Context: Read plan.md First
+
+Review `plan.md` section: **Phase 1: Project Setup & Structure (lines 148-304)** for comprehensive architecture and configuration details.
+
 ## Prerequisites
 
 - ✅ Phase 0 PoC completed with GO decision

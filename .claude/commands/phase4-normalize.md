@@ -9,6 +9,10 @@ model: sonnet
 
 **Tasks**: T065-T075 | **Validation**: CHK042-CHK048, CHK099
 
+## Context: Read plan.md First
+
+Review `plan.md` section: **Phase 4 (Detailed): Field Normalization Implementation (lines 794-898)** for normalization strategy patterns and ADO field rules.
+
 ## Prerequisites
 
 - ✅ Phase 1 completed (project setup)

@@ -9,6 +9,10 @@ model: sonnet
 
 **Tasks**: T117-T129 | **Validation**: CHK072-CHK078, CHK101-CHK103
 
+## Context: Read plan.md First
+
+Review `plan.md` section: **Phase 7: Integration Testing & Example Script (lines 901-1021)** for example script patterns and the progressive disclosure pattern demonstration.
+
 ## Prerequisites
 
 - ✅ Phase 2 completed (MCP Client Manager)
