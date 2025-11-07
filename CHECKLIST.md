@@ -28,11 +28,11 @@
 
 ## Phase 0: Proof of Concept
 
-- [ ] CHK011 - Does the PoC validate all critical assumptions (stdio transport, SDK compatibility, response structure)? [Completeness, Plan §Phase 0 Tasks]
-- [ ] CHK012 - Are both test servers (git, fetch) included in PoC validation? [Completeness, Plan §Phase 0 Tasks]
-- [ ] CHK013 - Is the PoC script executable standalone without full project setup? [Clarity, Plan §Phase 0 Script]
-- [ ] CHK014 - Are PoC deliverables measurable (✅ checklist format)? [Clarity, Plan §Phase 0 Deliverables]
-- [ ] CHK015 - Is there a contingency plan if PoC reveals SDK incompatibilities? [Gap]
+- [x] CHK011 - Does the PoC validate all critical assumptions (stdio transport, SDK compatibility, response structure)? [Completeness, Plan §Phase 0 Tasks]
+- [x] CHK012 - Are both test servers (git, fetch) included in PoC validation? [Completeness, Plan §Phase 0 Tasks]
+- [x] CHK013 - Is the PoC script executable standalone without full project setup? [Clarity, Plan §Phase 0 Script]
+- [x] CHK014 - Are PoC deliverables measurable (✅ checklist format)? [Clarity, Plan §Phase 0 Deliverables]
+- [x] CHK015 - Is there a contingency plan if PoC reveals SDK incompatibilities? [Gap]
 
 ## Phase 1: Project Setup
 

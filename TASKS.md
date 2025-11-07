@@ -36,17 +36,17 @@ branch: python-port
 
 ### Tasks
 
-- [ ] T001 Install Python MCP SDK dependencies in temporary test environment: `uv pip install mcp`
-- [ ] T002 Create PoC script at `poc_mcp_test.py` with git server connection test
-- [ ] T003 Validate stdio transport connection to git server (@modelcontextprotocol/server-git)
-- [ ] T004 Test Client initialization and list_tools() response format
-- [ ] T005 Test tool calling with git_status (repo_path: ".")
-- [ ] T006 Validate response unwrapping pattern (check for .content attribute)
-- [ ] T007 Test connection lifecycle (connect → initialize → call → close)
-- [ ] T008 Repeat validation with fetch server (@modelcontextprotocol/server-fetch)
-- [ ] T009 Document any differences from TypeScript SDK in `poc_findings.md`
-- [ ] T010 Validate response structure matches defensive unwrapping expectations
-- [ ] T011 **GO/NO-GO DECISION**: Document PoC validation results and decision to proceed
+- [x] T001 Install Python MCP SDK dependencies in temporary test environment: `uv pip install mcp`
+- [x] T002 Create PoC script at `poc_mcp_test.py` with git server connection test
+- [x] T003 Validate stdio transport connection to git server (@modelcontextprotocol/server-git)
+- [x] T004 Test Client initialization and list_tools() response format
+- [x] T005 Test tool calling with git_status (repo_path: ".")
+- [x] T006 Validate response unwrapping pattern (check for .content attribute)
+- [x] T007 Test connection lifecycle (connect → initialize → call → close)
+- [x] T008 Repeat validation with fetch server (@modelcontextprotocol/server-fetch)
+- [x] T009 Document any differences from TypeScript SDK in `poc_findings.md`
+- [x] T010 Validate response structure matches defensive unwrapping expectations
+- [x] T011 **GO/NO-GO DECISION**: Document PoC validation results and decision to proceed
 
 **Validation**: CHK011-CHK015
 
