@@ -31,7 +31,7 @@ This is the pattern that makes AI agents practical at scale.
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/mcp-code-execution.git
+git clone https://github.com/ipdelete/mcp-code-execution.git
 cd mcp-code-execution
 npm install
 ```
