@@ -12,7 +12,7 @@
 
 ```text
 1. LLM explores servers/MCP_DOCKER/ to discover available tools (2,000 tokens)
-2. LLM writes tests/awesome-mcp-to-obsidian.ts using only what it needs
+2. LLM writes workspace/awesome-mcp-to-obsidian.ts using only what it needs
 3. Script executes locally: GitHub search → README fetch → process → Obsidian write
 4. LLM receives clean result: "Saved 47 MCP resources to 0. Inbox/Awesome MCP Resources.md"
 ```
@@ -145,7 +145,8 @@ mcp-code-execution/
 │   └── github/
 │       ├── search_code.ts
 │       └── index.ts
-├── tests/                    # Agent-generated scripts
+├── workspace/                # User scripts (gitignored)
+├── tests/                    # Example/reference scripts
 └── mcp-config.json          # Server configuration
 ```
 
@@ -248,7 +249,7 @@ const result = await some_tool({ param: 'value' });
 
 ## Writing Scripts
 
-All scripts in `tests/` must follow these conventions:
+All scripts in `workspace/` should follow these conventions:
 
 ### Process Exit Handling
 
@@ -297,7 +298,7 @@ const featureBacklog = backlogs.find(b => b.name === 'Features');
 
 **Why this matters:** Auto-generated wrappers may not have complete type information. Defensive patterns prevent runtime errors when response structures differ from expectations.
 
-See `tests/list-team-features.ts` for a complete example.
+See `tests/` folder for complete examples.
 
 ## Scripts
 

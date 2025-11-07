@@ -30,7 +30,7 @@ When working with MCP tools that have unknown response structures (marked with "
 
 **Step 1 - Exploration:**
 ```typescript
-// tests/explore-backlog-api.ts
+// workspace/explore-backlog-api.ts
 const response = await wit_list_backlog_work_items({...});
 console.log('Raw response:', JSON.stringify(response, null, 2));
 ```
@@ -93,7 +93,7 @@ const workItemIds = workItemRefs
 
 ## Script Structure Template
 
-All scripts in `tests/` should follow this pattern:
+All scripts in `workspace/` should follow this pattern:
 
 ```typescript
 import { tool1, tool2 } from '../servers/server-name';
@@ -152,7 +152,7 @@ Create a separate debug/exploration script when:
 - You encounter unexpected empty results
 - The auto-generated wrapper shows "no outputSchema" warning
 
-Name debug scripts: `tests/debug-<feature>.ts` or `tests/explore-<api>.ts`
+Name debug scripts: `workspace/debug-<feature>.ts` or `workspace/explore-<api>.ts`
 
 ## Field Normalization
 

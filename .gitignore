@@ -8,5 +8,11 @@ dist/
 # Generated server wrappers (run 'npm run generate' to create)
 servers/*/
 
+# User-specific MCP server config (contains org names, projects)
+mcp-config.json
+
 # User-specific discovery config (contains real project names, IDs)
 discovery-config.json
+
+# User workspace scripts (personal/project-specific)
+workspace/
