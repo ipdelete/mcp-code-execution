@@ -124,7 +124,7 @@ def generate_server_module(server_name: str, tools: list[Any], output_dir: Path)
     Args:
         server_name: Name of the MCP server
         tools: List of tool definitions
-        output_dir: Output directory (src/servers/)
+        output_dir: Output directory (servers/)
     """
     server_dir = output_dir / server_name
     server_dir.mkdir(parents=True, exist_ok=True)
@@ -198,7 +198,7 @@ async def generate_wrappers(config_path: Path | None = None) -> None:
     2. For each server:
        a. Connect and list tools
        b. Generate wrappers
-       c. Write to src/servers/{server}/
+       c. Write to servers/{server}/
     3. Generate top-level __init__.py
 
     Args:

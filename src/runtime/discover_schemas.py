@@ -108,12 +108,12 @@ async def write_discovered_types(
     """
     Write discovered Pydantic models to file.
 
-    Creates: src/servers/{server}/discovered_types.py
+    Creates: servers/{server}/discovered_types.py
 
     Args:
         server_name: Name of server
         discovered_models: Dict mapping tool name to model code
-        output_dir: Output directory (src/servers/)
+        output_dir: Output directory (servers/)
     """
     server_dir = output_dir / server_name
     server_dir.mkdir(parents=True, exist_ok=True)
@@ -157,7 +157,7 @@ async def discover_schemas(config_path: Path | None = None) -> None:
        a. Connect to server
        b. Execute safe tools with sample params
        c. Infer Pydantic models from responses
-       d. Write to src/servers/{server}/discovered_types.py
+       d. Write to servers/{server}/discovered_types.py
     3. Log results
 
     Args:

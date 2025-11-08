@@ -72,10 +72,10 @@ Create `mcp_config.json`:
 uv run mcp-generate
 ```
 
-This creates typed wrappers in `src/servers/`:
+This creates typed wrappers in `servers/`:
 
 ```
-src/servers/
+servers/
   git/
     __init__.py
     git_status.py
