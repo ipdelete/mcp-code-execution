@@ -299,23 +299,23 @@ branch: python-port
 
 ### Tasks
 
-- [ ] T130 [P] Update README.md: add Python installation section (uv installation)
-- [ ] T131 [P] Add Python quick start guide to README.md
-- [ ] T132 [P] Update examples in README.md to show Python usage
-- [ ] T133 [P] Document Python-specific patterns in README.md
-- [ ] T134 [P] Add note about Python port to README.md
-- [ ] T135 [P] Create `docs/python-port.md` documenting differences from TypeScript
-- [ ] T136 [P] Create `docs/pydantic-usage.md` with Pydantic model usage examples
-- [ ] T137 [P] Create `docs/type-safety.md` with Python type hints and mypy usage
-- [ ] T138 Add project.scripts section to `pyproject.toml` (mcp-exec, mcp-generate, mcp-discover)
-- [ ] T139 Create or update `package.json` with npm compatibility scripts (generate, discover-schemas, exec)
-- [ ] T140 Document development setup in README.md: uv sync, mypy, black, ruff, pytest commands
-- [ ] T141 Add contribution guidelines for Python development
-- [ ] T142 Run full test suite: `uv run pytest`
-- [ ] T143 Run type checking: `uv run mypy src/`
-- [ ] T144 Run code formatting check: `uv run black --check src/ tests/`
-- [ ] T145 Run linting: `uv run ruff check src/ tests/`
-- [ ] T146 Format all code: `uv run black src/ tests/`
+- [x] T130 [P] Update README.md: add Python installation section (uv installation)
+- [x] T131 [P] Add Python quick start guide to README.md
+- [x] T132 [P] Update examples in README.md to show Python usage
+- [x] T133 [P] Document Python-specific patterns in README.md
+- [x] T134 [P] Add note about Python port to README.md
+- [x] T135 [P] Create `docs/python-port.md` documenting differences from TypeScript
+- [x] T136 [P] Create `docs/pydantic-usage.md` with Pydantic model usage examples
+- [x] T137 [P] Create `docs/type-safety.md` with Python type hints and mypy usage
+- [x] T138 Add project.scripts section to `pyproject.toml` (mcp-exec, mcp-generate, mcp-discover)
+- [x] T139 Create or update `package.json` with npm compatibility scripts (generate, discover-schemas, exec)
+- [x] T140 Document development setup in README.md: uv sync, mypy, black, ruff, pytest commands
+- [x] T141 Add contribution guidelines for Python development
+- [x] T142 Run full test suite: `uv run pytest`
+- [x] T143 Run type checking: `uv run mypy src/`
+- [x] T144 Run code formatting check: `uv run black --check src/ tests/`
+- [x] T145 Run linting: `uv run ruff check src/ tests/`
+- [x] T146 Format all code: `uv run black src/ tests/`
 
 **Validation**: CHK079-CHK085, CHK093-CHK096, CHK137-CHK145
 

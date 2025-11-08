@@ -6,7 +6,7 @@ but expect PascalCase prefixes in certain contexts. This module provides
 configurable normalization strategies.
 """
 
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -19,7 +19,7 @@ class NormalizationConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    servers: Dict[str, NormalizationStrategy]
+    servers: dict[str, NormalizationStrategy]
 
 
 # Default configuration
@@ -123,9 +123,7 @@ def normalize_ado_fields(obj: Any) -> Any:
     return obj
 
 
-def update_normalization_config(
-    server_name: str, strategy: NormalizationStrategy
-) -> None:
+def update_normalization_config(server_name: str, strategy: NormalizationStrategy) -> None:
     """
     Update normalization strategy for a server.
 

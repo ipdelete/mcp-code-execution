@@ -1,0 +1,17 @@
+{
+  "name": "mcp-code-execution-python",
+  "version": "2.0.0",
+  "description": "Progressive tool discovery pattern for MCP - Python Runtime",
+  "scripts": {
+    "generate": "uv run python -m runtime.generate_wrappers",
+    "discover-schemas": "uv run python -m runtime.discover_schemas",
+    "exec": "uv run python -m runtime.harness"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "progressive-disclosure",
+    "python"
+  ],
+  "license": "MIT"
+}

@@ -1,12 +1,10 @@
 """Unit tests for field normalization."""
 
-import pytest
-
 from runtime.normalize_fields import (
+    get_normalization_strategy,
     normalize_ado_fields,
     normalize_field_names,
     update_normalization_config,
-    get_normalization_strategy,
 )
 
 
@@ -148,6 +146,7 @@ def test_normalize_field_names_unknown_strategy():
 
 def test_ado_normalization_unknown_type():
     """Test that unknown types (non-dict, non-list, non-primitive) are returned unchanged."""
+
     # Test with a custom object
     class CustomObject:
         pass

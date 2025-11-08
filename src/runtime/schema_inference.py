@@ -5,8 +5,7 @@ This module infers Pydantic models from actual response data when output
 schemas are not available or incomplete.
 """
 
-from typing import Any, Dict, List, Optional, Set
-from collections import defaultdict
+from typing import Any
 
 
 def infer_python_type(value: Any) -> str:
@@ -60,7 +59,7 @@ def infer_python_type(value: Any) -> str:
 def infer_pydantic_model_from_response(
     tool_name: str,
     response_data: Any,
-    description: Optional[str] = None,
+    description: str | None = None,
 ) -> str:
     """
     Infer Pydantic model from actual response data.
@@ -126,9 +125,7 @@ class {model_name}(BaseModel):
     return "\n".join(lines)
 
 
-def merge_response_schemas(
-    schemas: List[Dict[str, Any]]
-) -> Dict[str, str]:
+def merge_response_schemas(schemas: list[dict[str, Any]]) -> dict[str, str]:
     """
     Merge multiple response schemas into unified field types.
 
@@ -145,13 +142,10 @@ def merge_response_schemas(
         return {}
 
     if len(schemas) == 1:
-        return {
-            key: infer_python_type(value)
-            for key, value in schemas[0].items()
-        }
+        return {key: infer_python_type(value) for key, value in schemas[0].items()}
 
     # Find all field names across all schemas
-    all_fields = set()
+    all_fields: set[str] = set()
     for schema in schemas:
         if isinstance(schema, dict):
             all_fields.update(schema.keys())

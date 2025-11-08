@@ -120,13 +120,13 @@
 
 ## Phase 8: Documentation & Polish
 
-- [ ] CHK079 - Does README.md include Python installation instructions? [Completeness, Plan §Phase 8 Tasks]
-- [ ] CHK080 - Does README.md include Python quick start guide? [Completeness, Plan §Phase 8 Tasks]
-- [ ] CHK081 - Does README.md show Python-specific examples? [Completeness, Plan §Phase 8 Tasks]
-- [ ] CHK082 - Are Python scripts added to pyproject.toml [project.scripts]? [Completeness, Plan §Phase 8 Tasks]
-- [ ] CHK083 - Is package.json updated for compatibility (npm run generate, etc.)? [Completeness, Plan §Phase 8 Tasks]
-- [ ] CHK084 - Is development setup documented (uv sync, mypy, black, ruff, pytest)? [Completeness, Plan §Phase 8 Tasks]
-- [ ] CHK085 - Are Python-specific docs created (python-port.md, pydantic-usage.md, type-safety.md)? [Completeness, Plan §Phase 8 Tasks]
+- [x] CHK079 - Does README.md include Python installation instructions? [Completeness, Plan §Phase 8 Tasks]
+- [x] CHK080 - Does README.md include Python quick start guide? [Completeness, Plan §Phase 8 Tasks]
+- [x] CHK081 - Does README.md show Python-specific examples? [Completeness, Plan §Phase 8 Tasks]
+- [x] CHK082 - Are Python scripts added to pyproject.toml [project.scripts]? [Completeness, Plan §Phase 8 Tasks]
+- [x] CHK083 - Is package.json updated for compatibility (npm run generate, etc.)? [Completeness, Plan §Phase 8 Tasks]
+- [x] CHK084 - Is development setup documented (uv sync, mypy, black, ruff, pytest)? [Completeness, Plan §Phase 8 Tasks]
+- [x] CHK085 - Are Python-specific docs created (python-port.md, pydantic-usage.md, type-safety.md)? [Completeness, Plan §Phase 8 Tasks]
 
 ## Success Criteria Validation
 
@@ -134,13 +134,13 @@
 - [x] CHK087 - Do lazy server connections work (no connection until first tool call)? [Pattern Preservation, Plan §Success Criteria]
 - [x] CHK088 - Does tool caching prevent repeated list_tools calls? [Pattern Preservation, Plan §Success Criteria]
 - [x] CHK089 - Is defensive unwrapping implemented throughout? [Pattern Preservation, Plan §Success Criteria]
-- [ ] CHK090 - Does mypy pass in strict mode for all runtime code? [Type Safety, Plan §Success Criteria]
-- [ ] CHK091 - Do generated wrappers have complete type hints? [Type Safety, Plan §Success Criteria]
-- [ ] CHK092 - Does IDE autocomplete work for generated tools? [Type Safety, Plan §Success Criteria]
-- [ ] CHK093 - Is all code formatted with black? [Quality, Plan §Success Criteria]
-- [ ] CHK094 - Does ruff linting pass? [Quality, Plan §Success Criteria]
-- [ ] CHK095 - Do all tests pass (unit + integration)? [Quality, Plan §Success Criteria]
-- [ ] CHK096 - Are file operations safe (no security issues)? [Quality, Plan §Success Criteria]
+- [x] CHK090 - Does mypy pass in strict mode for all runtime code? [Type Safety, Plan §Success Criteria]
+- [x] CHK091 - Do generated wrappers have complete type hints? [Type Safety, Plan §Success Criteria]
+- [x] CHK092 - Does IDE autocomplete work for generated tools? [Type Safety, Plan §Success Criteria]
+- [x] CHK093 - Is all code formatted with black? [Quality, Plan §Success Criteria]
+- [x] CHK094 - Does ruff linting pass? [Quality, Plan §Success Criteria]
+- [x] CHK095 - Do all tests pass (unit + integration)? [Quality, Plan §Success Criteria]
+- [x] CHK096 - Are file operations safe (no security issues)? [Quality, Plan §Success Criteria]
 
 ## Testing Coverage
 

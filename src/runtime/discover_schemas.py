@@ -9,16 +9,14 @@ import asyncio
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiofiles
 
-from .config import McpConfig
-from .exceptions import ConfigurationError, ToolExecutionError
+from .exceptions import ToolExecutionError
 from .mcp_client import McpClientManager
 from .schema_inference import (
     infer_pydantic_model_from_response,
-    merge_response_schemas,
 )
 
 logger = logging.getLogger("mcp_execution.discover_schemas")
@@ -28,7 +26,7 @@ async def execute_safe_tool(
     manager: McpClientManager,
     server_name: str,
     tool_name: str,
-    params: Dict[str, Any],
+    params: dict[str, Any],
 ) -> Any:
     """
     Execute a tool safely (read-only operations only).
@@ -57,16 +55,14 @@ async def execute_safe_tool(
 
         return unwrapped
     except Exception as e:
-        raise ToolExecutionError(
-            f"Failed to execute safe tool {tool_id}: {e}"
-        ) from e
+        raise ToolExecutionError(f"Failed to execute safe tool {tool_id}: {e}") from e
 
 
 async def discover_server_schemas(
     manager: McpClientManager,
     server_name: str,
-    safe_tools_config: Dict[str, Dict[str, Any]],
-) -> Dict[str, str]:
+    safe_tools_config: dict[str, dict[str, Any]],
+) -> dict[str, str]:
     """
     Discover Pydantic models for a single server's tools.
 
@@ -87,23 +83,17 @@ async def discover_server_schemas(
             logger.debug(f"Discovering schema for {server_name}.{tool_name}")
 
             # Execute with sample parameters
-            response = await execute_safe_tool(
-                manager, server_name, tool_name, sample_params
-            )
+            response = await execute_safe_tool(manager, server_name, tool_name, sample_params)
 
             # Generate Pydantic model from response
-            model_code = infer_pydantic_model_from_response(
-                tool_name, response
-            )
+            model_code = infer_pydantic_model_from_response(tool_name, response)
 
             discovered_models[tool_name] = model_code
 
             logger.debug(f"✓ Discovered schema for {tool_name}")
 
         except Exception as e:
-            logger.warning(
-                f"Failed to discover schema for {tool_name}: {e}"
-            )
+            logger.warning(f"Failed to discover schema for {tool_name}: {e}")
             # Continue with other tools
             continue
 
@@ -112,7 +102,7 @@ async def discover_server_schemas(
 
 async def write_discovered_types(
     server_name: str,
-    discovered_models: Dict[str, str],
+    discovered_models: dict[str, str],
     output_dir: Path,
 ) -> None:
     """
@@ -179,14 +169,11 @@ async def discover_schemas(config_path: Path | None = None) -> None:
     config_file = config_path or Path.cwd() / "discovery_config.json"
 
     if not config_file.exists():
-        logger.warning(
-            f"Discovery config not found: {config_file}. "
-            "Skipping schema discovery."
-        )
+        logger.warning(f"Discovery config not found: {config_file}. " "Skipping schema discovery.")
         return
 
     try:
-        async with aiofiles.open(config_file, "r") as f:
+        async with aiofiles.open(config_file) as f:
             content = await f.read()
         discovery_config = json.loads(content)
     except Exception as e:
@@ -212,9 +199,7 @@ async def discover_schemas(config_path: Path | None = None) -> None:
             safe_tools_config = server_config.get("safeTools", {})
 
             if not safe_tools_config:
-                logger.debug(
-                    f"No safe tools configured for {server_name}, skipping"
-                )
+                logger.debug(f"No safe tools configured for {server_name}, skipping")
                 continue
 
             # Discover schemas
@@ -224,20 +209,13 @@ async def discover_schemas(config_path: Path | None = None) -> None:
 
             if discovered_models:
                 # Write discovered types
-                await write_discovered_types(
-                    server_name, discovered_models, output_dir
-                )
-                logger.info(
-                    f"✓ Discovered {len(discovered_models)} "
-                    f"schemas for {server_name}"
-                )
+                await write_discovered_types(server_name, discovered_models, output_dir)
+                logger.info(f"✓ Discovered {len(discovered_models)} " f"schemas for {server_name}")
             else:
                 logger.warning(f"No schemas discovered for {server_name}")
 
         except Exception as e:
-            logger.error(
-                f"Failed to discover schemas for {server_name}: {e}"
-            )
+            logger.error(f"Failed to discover schemas for {server_name}: {e}")
             continue
 
     # Cleanup

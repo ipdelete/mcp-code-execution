@@ -1,6 +1,7 @@
 """Pytest configuration for integration tests."""
 
 import pytest
+
 from runtime.mcp_client import get_mcp_client_manager
 
 

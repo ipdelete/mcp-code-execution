@@ -1,9 +1,8 @@
 """Unit tests for schema inference."""
 
-import pytest
 from runtime.schema_inference import (
-    infer_python_type,
     infer_pydantic_model_from_response,
+    infer_python_type,
     merge_response_schemas,
 )
 

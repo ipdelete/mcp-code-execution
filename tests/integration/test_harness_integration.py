@@ -1,13 +1,12 @@
 """Integration tests for script harness."""
 
-import pytest
 import subprocess
 import sys
 from pathlib import Path
 
 # Determine the correct Python executable for subprocess tests
 # Priority: .venv/bin/python > sys.executable
-venv_python = Path.cwd() / '.venv' / 'bin' / 'python'
+venv_python = Path.cwd() / ".venv" / "bin" / "python"
 if venv_python.exists():
     PYTHON_EXECUTABLE = str(venv_python)
 else:

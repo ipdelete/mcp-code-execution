@@ -1,10 +1,11 @@
 """Integration tests with real git MCP server."""
 
-import pytest
 from pathlib import Path
 
-from runtime.mcp_client import get_mcp_client_manager, ConnectionState
+import pytest
+
 from runtime.exceptions import ToolNotFoundError
+from runtime.mcp_client import ConnectionState, get_mcp_client_manager
 
 
 @pytest.mark.asyncio
@@ -45,9 +46,7 @@ async def test_git_log_tool():
     await manager.initialize(config_path)
 
     # Call git_log with limit
-    result = await manager.call_tool(
-        "git__git_log", {"repo_path": ".", "max_count": 5}
-    )
+    result = await manager.call_tool("git__git_log", {"repo_path": ".", "max_count": 5})
 
     assert result is not None
 

@@ -14,11 +14,10 @@ This test suite verifies:
 import json
 from pathlib import Path
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from runtime.config import McpConfig, ServerConfig
 from runtime.exceptions import (
     ConfigurationError,
     ServerConnectionError,
@@ -117,9 +116,7 @@ class TestStateTransitions:
         with pytest.raises(ConfigurationError, match="requires state 'uninitialized'"):
             await manager.initialize(temp_config_file)
 
-    async def test_cannot_call_tool_before_initialize(
-        self, manager: McpClientManager
-    ) -> None:
+    async def test_cannot_call_tool_before_initialize(self, manager: McpClientManager) -> None:
         """Should raise error when calling tool before initialization."""
         with pytest.raises(ConfigurationError, match="requires at least state 'initialized'"):
             await manager.call_tool("server__tool", {})
@@ -168,9 +165,7 @@ class TestLazyInitialization:
         with pytest.raises(ConfigurationError, match="Config file not found"):
             await manager.initialize(Path("/nonexistent/config.json"))
 
-    async def test_initialize_invalid_json(
-        self, manager: McpClientManager, tmp_path: Path
-    ) -> None:
+    async def test_initialize_invalid_json(self, manager: McpClientManager, tmp_path: Path) -> None:
         """Should raise error if config file contains invalid JSON."""
         invalid_file = tmp_path / "invalid.json"
         invalid_file.write_text("{ invalid json }")
@@ -216,7 +211,7 @@ class TestLazyConnection:
         assert len(manager._clients) == 0
 
         # Call tool - should trigger connection
-        result = await manager.call_tool("test-server__test_tool", {})
+        await manager.call_tool("test-server__test_tool", {})
 
         # Verify connection was established
         assert "test-server" in manager._clients

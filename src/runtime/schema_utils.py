@@ -4,12 +4,10 @@ JSON Schema to Pydantic model conversion utilities.
 Converts MCP tool schemas (JSON Schema format) to Pydantic model definitions.
 """
 
-from typing import Any, Dict, List, Optional, Set, Tuple, Type
+from typing import Any
 
 
-def json_schema_to_python_type(
-    schema: Dict[str, Any], required: bool = True
-) -> str:
+def json_schema_to_python_type(schema: dict[str, Any], required: bool = True) -> str:
     """
     Convert JSON Schema type to Python type hint string.
 
@@ -86,8 +84,8 @@ def json_schema_to_python_type(
 
 def generate_pydantic_model(
     model_name: str,
-    schema: Dict[str, Any],
-    description: Optional[str] = None,
+    schema: dict[str, Any],
+    description: str | None = None,
 ) -> str:
     """
     Generate Pydantic model class from JSON Schema.

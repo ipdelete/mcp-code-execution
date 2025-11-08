@@ -20,9 +20,7 @@ from .exceptions import McpExecutionError
 from .mcp_client import get_mcp_client_manager
 
 # Configure logging to stderr
-logging.basicConfig(
-    level=logging.INFO, format="[%(levelname)s] %(message)s", stream=sys.stderr
-)
+logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s", stream=sys.stderr)
 
 logger = logging.getLogger("mcp_execution.harness")
 

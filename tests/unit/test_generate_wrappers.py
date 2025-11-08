@@ -1,9 +1,8 @@
 """Unit tests for wrapper generation."""
 
-import pytest
 from runtime.schema_utils import (
-    json_schema_to_python_type,
     generate_pydantic_model,
+    json_schema_to_python_type,
     sanitize_name,
 )
 

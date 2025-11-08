@@ -97,9 +97,7 @@ class McpClientManager:
                 f"but requires state '{required_state.value}'"
             )
 
-    def _validate_state_at_least(
-        self, minimum_state: ConnectionState, operation: str
-    ) -> None:
+    def _validate_state_at_least(self, minimum_state: ConnectionState, operation: str) -> None:
         """Validate that the manager has at least reached the minimum state.
 
         Args:
@@ -233,9 +231,7 @@ class McpClientManager:
                 except Exception:
                     pass
                 del self._stdio_contexts[server_name]
-            raise ServerConnectionError(
-                f"Could not connect to MCP server '{server_name}': {e}"
-            )
+            raise ServerConnectionError(f"Could not connect to MCP server '{server_name}': {e}")
 
     async def _get_server_tools(self, server_name: str) -> list[Tool]:
         """Get list of tools from a server, using cache if available.
@@ -320,9 +316,7 @@ class McpClientManager:
             )
 
         if server_config.disabled:
-            raise ToolNotFoundError(
-                f"Server '{server_name}' is disabled in configuration"
-            )
+            raise ToolNotFoundError(f"Server '{server_name}' is disabled in configuration")
 
         # Lazy connection: connect to server if not already connected
         if server_name not in self._clients:
@@ -443,7 +437,9 @@ class McpClientManager:
                 # Ignore cancel scope errors that can occur when contexts are entered
                 # and exited in different event loop tasks (e.g., when scripts call asyncio.run())
                 if "cancel scope" in str(e).lower() or isinstance(e, asyncio.CancelledError):
-                    logger.debug(f"Ignoring cancel scope error during cleanup for '{server_name}': {e}")
+                    logger.debug(
+                        f"Ignoring cancel scope error during cleanup for '{server_name}': {e}"
+                    )
                 else:
                     logger.error(f"Error closing session context for '{server_name}': {e}")
             except Exception as e:
@@ -459,7 +455,9 @@ class McpClientManager:
                 # Ignore cancel scope errors that can occur when contexts are entered
                 # and exited in different event loop tasks (e.g., when scripts call asyncio.run())
                 if "cancel scope" in str(e).lower() or isinstance(e, asyncio.CancelledError):
-                    logger.debug(f"Ignoring cancel scope error during cleanup for '{server_name}': {e}")
+                    logger.debug(
+                        f"Ignoring cancel scope error during cleanup for '{server_name}': {e}"
+                    )
                 else:
                     logger.error(f"Error closing stdio context for '{server_name}': {e}")
             except Exception as e:

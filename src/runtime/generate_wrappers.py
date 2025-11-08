@@ -8,21 +8,18 @@ Pydantic models and wrapper functions for each MCP tool.
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from .config import McpConfig
 from .schema_utils import (
     generate_pydantic_model,
-    json_schema_to_python_type,
     sanitize_name,
 )
 
 logger = logging.getLogger("mcp_execution.generate_wrappers")
 
 
-def generate_tool_wrapper(
-    server_name: str, tool_name: str, tool: Any
-) -> str:
+def generate_tool_wrapper(server_name: str, tool_name: str, tool: Any) -> str:
     """
     Generate Python wrapper function for a tool.
 
@@ -115,9 +112,7 @@ class {model_name}(BaseModel):
     return generate_pydantic_model(model_name, input_schema, description)
 
 
-def generate_server_module(
-    server_name: str, tools: List[Any], output_dir: Path
-) -> None:
+def generate_server_module(server_name: str, tools: list[Any], output_dir: Path) -> None:
     """
     Generate complete module for a server's tools.
 
@@ -176,7 +171,10 @@ Auto-generated wrappers for {server_name} MCP server.
 
 ## Tools
 
-{chr(10).join([f"- `{tool.name}`: {getattr(tool, 'description', 'No description')}" for tool in tools])}
+{chr(10).join([
+    f"- `{tool.name}`: {getattr(tool, 'description', 'No description')}"
+    for tool in tools
+])}
 
 ## Usage
 
@@ -218,7 +216,7 @@ async def generate_wrappers(config_path: Path | None = None) -> None:
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client
 
-    async with aiofiles.open(config_file, "r") as f:
+    async with aiofiles.open(config_file) as f:
         content = await f.read()
     config = McpConfig.model_validate_json(content)
 
@@ -254,6 +252,7 @@ async def generate_wrappers(config_path: Path | None = None) -> None:
         except Exception as e:
             logger.error(f"Failed to generate wrappers for {server_name}: {e}")
             import traceback
+
             traceback.print_exc()
 
     logger.info("Wrapper generation complete!")

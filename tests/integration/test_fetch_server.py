@@ -1,7 +1,8 @@
 """Integration tests with real fetch MCP server."""
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 from runtime.mcp_client import get_mcp_client_manager
 
