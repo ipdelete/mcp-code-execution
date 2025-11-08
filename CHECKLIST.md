@@ -59,15 +59,15 @@
 
 ## Phase 3: Script Execution Harness
 
-- [ ] CHK033 - Does harness.py accept script path as CLI argument? [Completeness, Plan §Phase 3 Key Components]
-- [ ] CHK034 - Is script path validation implemented before execution? [Completeness, Plan §Phase 3 Key Components]
-- [ ] CHK035 - Does harness add src/ to sys.path for imports? [Completeness, Plan §Phase 3 Key Components]
-- [ ] CHK036 - Are signal handlers (SIGINT/SIGTERM) implemented using asyncio.Event (not async/await)? [Clarity, Plan §Phase 3 Key Features]
-- [ ] CHK037 - Does harness use runpy.run_path for script execution? [Clarity, Plan §Phase 3 Key Components]
-- [ ] CHK038 - Is logging configured to output to stderr with [LEVEL] format? [Clarity, Plan §Phase 3 Key Components]
-- [ ] CHK039 - Are standard exit codes used (0=success, 1=error, 130=Ctrl+C)? [Completeness, Plan §Phase 3 Key Components]
-- [ ] CHK040 - Is cleanup guaranteed via try/finally block? [Completeness, Plan §Phase 3 Key Components]
-- [ ] CHK041 - Can harness be invoked as both module and script alias? [Completeness, Plan §Phase 3 Deliverables]
+- [x] CHK033 - Does harness.py accept script path as CLI argument? [Completeness, Plan §Phase 3 Key Components]
+- [x] CHK034 - Is script path validation implemented before execution? [Completeness, Plan §Phase 3 Key Components]
+- [x] CHK035 - Does harness add src/ to sys.path for imports? [Completeness, Plan §Phase 3 Key Components]
+- [x] CHK036 - Are signal handlers (SIGINT/SIGTERM) implemented using asyncio.Event (not async/await)? [Clarity, Plan §Phase 3 Key Features]
+- [x] CHK037 - Does harness use runpy.run_path for script execution? [Clarity, Plan §Phase 3 Key Components]
+- [x] CHK038 - Is logging configured to output to stderr with [LEVEL] format? [Clarity, Plan §Phase 3 Key Components]
+- [x] CHK039 - Are standard exit codes used (0=success, 1=error, 130=Ctrl+C)? [Completeness, Plan §Phase 3 Key Components]
+- [x] CHK040 - Is cleanup guaranteed via try/finally block? [Completeness, Plan §Phase 3 Key Components]
+- [x] CHK041 - Can harness be invoked as both module and script alias? [Completeness, Plan §Phase 3 Deliverables]
 
 ## Phase 4: Field Normalization
 

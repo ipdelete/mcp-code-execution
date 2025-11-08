@@ -137,21 +137,21 @@ branch: python-port
 
 ### Tasks
 
-- [ ] T050 Create `src/runtime/harness.py` with main() async function
-- [ ] T051 Implement CLI argument parsing (script_path from sys.argv[1])
-- [ ] T052 Implement script path validation (check file exists)
-- [ ] T053 Implement sys.path management: add src/ to sys.path for imports
-- [ ] T054 Implement MCP client manager initialization
-- [ ] T055 Implement signal handlers for SIGINT and SIGTERM using asyncio.Event (not async/await)
-- [ ] T056 Implement script execution using runpy.run_path() in isolated namespace
-- [ ] T057 Implement try/except/finally for error handling and cleanup
-- [ ] T058 Implement proper exit codes (0=success, 1=error, 130=Ctrl+C)
-- [ ] T059 Configure logging to stderr with "[LEVEL] message" format
-- [ ] T060 Implement cleanup guarantee in finally block with error handling
-- [ ] T061 Add `__name__ == "__main__"` block with asyncio.run(main())
-- [ ] T062 Test harness execution: `uv run python -m runtime.harness workspace/test_script.py`
-- [ ] T063 Add script alias to `pyproject.toml`: mcp-exec = "runtime.harness:main"
-- [ ] T064 Verify Ctrl+C handling (exit code 130)
+- [x] T050 Create `src/runtime/harness.py` with main() async function
+- [x] T051 Implement CLI argument parsing (script_path from sys.argv[1])
+- [x] T052 Implement script path validation (check file exists)
+- [x] T053 Implement sys.path management: add src/ to sys.path for imports
+- [x] T054 Implement MCP client manager initialization
+- [x] T055 Implement signal handlers for SIGINT and SIGTERM using asyncio.Event (not async/await)
+- [x] T056 Implement script execution using runpy.run_path() in isolated namespace
+- [x] T057 Implement try/except/finally for error handling and cleanup
+- [x] T058 Implement proper exit codes (0=success, 1=error, 130=Ctrl+C)
+- [x] T059 Configure logging to stderr with "[LEVEL] message" format
+- [x] T060 Implement cleanup guarantee in finally block with error handling
+- [x] T061 Add `__name__ == "__main__"` block with asyncio.run(main())
+- [x] T062 Test harness execution: `uv run python -m runtime.harness workspace/test_script.py`
+- [x] T063 Add script alias to `pyproject.toml`: mcp-exec = "runtime.harness:main"
+- [x] T064 Verify Ctrl+C handling (exit code 130)
 
 **Validation**: CHK033-CHK041, CHK117-CHK118
 
