@@ -1,8 +1,46 @@
 """Pytest configuration for integration tests."""
 
+import json
+import tempfile
+from pathlib import Path
+
 import pytest
 
 from runtime.mcp_client import get_mcp_client_manager
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mcp_config_for_tests(tmp_path_factory):
+    """Create a temporary mcp_config.json for integration tests.
+
+    This fixture:
+    1. Creates a temp directory for the test session
+    2. Copies the example config to a real config file
+    3. Makes it available at Path.cwd() / "mcp_config.json"
+
+    This ensures tests can run even though mcp_config.json is in .gitignore.
+    """
+    # Read the example config
+    example_config_path = (
+        Path(__file__).parent.parent.parent / "mcp_config.example.json"
+    )
+
+    if not example_config_path.exists():
+        pytest.skip("mcp_config.example.json not found")
+
+    with open(example_config_path) as f:
+        config = json.load(f)
+
+    # Write it to the current working directory
+    config_path = Path.cwd() / "mcp_config.json"
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=2)
+
+    yield config_path
+
+    # Cleanup after all tests
+    if config_path.exists():
+        config_path.unlink()
 
 
 @pytest.fixture(autouse=True)
