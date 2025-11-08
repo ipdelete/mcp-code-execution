@@ -3,6 +3,14 @@ Generate Pydantic models from actual API responses.
 
 This module discovers Pydantic models by executing safe tools and inferring
 types from their responses. Useful for servers that don't provide output schemas.
+
+Typical workflow:
+  1. Run: uv run mcp-generate-discovery
+     (generates discovery_config.json from mcp_config.json using Claude LLM)
+  2. Review and edit discovery_config.json as needed
+  3. Run: uv run mcp-discover
+     (executes safe tools and infers schemas)
+  4. Review generated schemas in servers/{server}/discovered_types.py
 """
 
 import asyncio
@@ -194,6 +202,16 @@ async def discover_schemas(config_path: Path | None = None) -> None:
 
     # Discover schemas for each server
     servers_config = discovery_config.get("servers", {})
+
+    # Log metadata if present (from mcp-generate-discovery)
+    metadata = discovery_config.get("metadata", {})
+    if metadata.get("generated"):
+        logger.info(
+            f"Using auto-generated config: "
+            f"{metadata.get('generated_count', 0)} tools, "
+            f"{metadata.get('skipped_count', 0)} skipped"
+        )
+
     for server_name, server_config in servers_config.items():
         try:
             safe_tools_config = server_config.get("safeTools", {})

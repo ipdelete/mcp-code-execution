@@ -66,10 +66,23 @@ Create `mcp_config.json`:
 }
 ```
 
-### 2. Generate Tool Wrappers
+### 2. Generate Tool Wrappers and Discover Schemas (Optional)
 
 ```bash
+# Generate wrappers from inputSchema
 uv run mcp-generate
+```
+
+If your MCP servers are missing `outputSchema` definitions, automatically generate them:
+
+```bash
+# Step 1: Generate discovery config with LLM-powered test parameters
+uv run mcp-generate-discovery
+
+# Step 2: Review discovery_config.json and remove/modify as needed
+
+# Step 3: Execute safe tools and infer schemas
+uv run mcp-discover
 ```
 
 This creates typed wrappers in `servers/`:
@@ -81,9 +94,11 @@ servers/
     git_status.py
     git_log.py
     git_diff.py
+    discovered_types.py       # Generated output schemas
   fetch/
     __init__.py
     fetch.py
+    discovered_types.py
 ```
 
 ### 3. How It Works
@@ -194,14 +209,17 @@ uv run black --check src/ tests/
 ### Project Scripts
 
 ```bash
-# Generate wrappers
+# Generate wrappers from tool definitions
 uv run mcp-generate
 
-# Execute script
-uv run mcp-exec workspace/script.py
+# (Optional) Generate discovery config with LLM parameter generation
+uv run mcp-generate-discovery
 
-# Discover schemas (optional)
+# (Optional) Execute safe tools and infer schemas
 uv run mcp-discover
+
+# Execute a Python script with MCP tools available
+uv run mcp-exec workspace/script.py
 ```
 
 ## Python-Specific Features
@@ -249,6 +267,62 @@ from runtime.normalize_fields import normalize_field_names
 ado_response = {"system.title": "Task", "custom.priority": "High"}
 normalized = normalize_field_names(ado_response, "ado")
 # Result: {"System.title": "Task", "Custom.priority": "High"}
+```
+
+## Handling Missing Output Schemas
+
+Many MCP servers don't provide `outputSchema` in their tool definitions, which is optional in the MCP spec. This project provides automatic schema discovery using LLM-powered parameter generation:
+
+### How It Works
+
+1. **Generate Discovery Config** (`mcp-generate-discovery`)
+   - Connects to all configured MCP servers
+   - Uses Claude to generate sensible test parameters from `inputSchema`
+   - Classifies tools as SAFE/DANGEROUS/UNKNOWN based on patterns
+   - Writes `discovery_config.json` for review
+
+2. **Review and Edit** (Manual step)
+   - Review the generated config
+   - Add/remove tools as needed
+   - Modify test parameters if necessary
+
+3. **Discover Schemas** (`mcp-discover`)
+   - Executes safe tools with test parameters
+   - Infers Pydantic models from actual responses
+   - Writes `servers/{server}/discovered_types.py`
+
+### Tool Classification
+
+Tools are automatically classified by safety:
+
+- **SAFE**: Tools matching patterns like `get_*`, `list_*`, `read_*`, `fetch`, `search_*`, etc.
+- **DANGEROUS**: Tools matching patterns like `delete_*`, `remove_*`, `update_*`, `write_*`, etc.
+- **UNKNOWN**: Tools that don't match any pattern (require manual review)
+
+Dangerous tools are excluded from auto-discovery by default.
+
+### Example
+
+```json
+{
+  "servers": {
+    "github": {
+      "safeTools": {
+        "search_code": {"q": "language:python", "per_page": 1},
+        "list_repositories": {"sort": "stars", "per_page": 1}
+      }
+    }
+  },
+  "metadata": {
+    "generated": true,
+    "generated_count": 2,
+    "skipped_count": 3,
+    "tools_skipped": {
+      "dangerous": ["delete_repository"],
+      "unknown": ["analyze_code", "deploy_release", "configure_webhook"]
+    }
+  }
+}
 ```
 
 ## Examples
