@@ -1,9 +1,12 @@
 {
   "mcpServers": {
-    "test-server": {
-      "command": "echo",
-      "args": ["test"],
-      "disabled": true
+    "git": {
+      "command": "npx",
+      "args": ["-y", "@cyanheads/git-mcp-server"]
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"]
     }
   }
 }
