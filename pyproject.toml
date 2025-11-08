@@ -66,3 +66,8 @@ pythonpath = ["src"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+
+[dependency-groups]
+dev = [
+    "types-aiofiles>=25.1.0.20251011",
+]

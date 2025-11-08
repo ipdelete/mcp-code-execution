@@ -368,6 +368,11 @@ dev = [
     { name = "types-aiofiles" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "types-aiofiles" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "aiofiles", specifier = ">=23.0.0" },
@@ -381,6 +386,9 @@ requires-dist = [
     { name = "types-aiofiles", marker = "extra == 'dev'", specifier = ">=23.0.0" },
 ]
 provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "types-aiofiles", specifier = ">=25.1.0.20251011" }]
 
 [[package]]
 name = "mypy"
