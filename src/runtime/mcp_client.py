@@ -63,8 +63,10 @@ class McpClientManager:
         _clients: Mapping of server names to active client sessions
         _tool_cache: Cached tools per server to avoid repeated queries
         _config: Loaded MCP configuration
-        _read_streams: Active stdio read streams for cleanup
-        _write_streams: Active stdio write streams for cleanup
+        _stdio_contexts: Stdio context managers for proper lifecycle management
+        _session_contexts: Session context managers for proper lifecycle management
+        _read_streams: Active stdio read streams
+        _write_streams: Active stdio write streams
     """
 
     def __init__(self) -> None:
@@ -73,6 +75,8 @@ class McpClientManager:
         self._clients: dict[str, ClientSession] = {}
         self._tool_cache: dict[str, list[Tool]] = {}
         self._config: McpConfig | None = None
+        self._stdio_contexts: dict[str, Any] = {}  # Store stdio context managers
+        self._session_contexts: dict[str, Any] = {}  # Store session context managers
         self._read_streams: dict[str, Any] = {}
         self._write_streams: dict[str, Any] = {}
 
@@ -197,26 +201,37 @@ class McpClientManager:
                 env=config.env,
             )
 
-            # Establish stdio connection
-            # Note: stdio_client returns a context manager that yields (read, write) streams
+            # Establish stdio connection and store the context manager
+            # We manually enter the context and store it for proper cleanup later
             stdio_ctx = stdio_client(server_params)
             streams = await stdio_ctx.__aenter__()
             read_stream, write_stream = streams
+
+            # Store the context manager so we can properly exit it during cleanup
+            self._stdio_contexts[server_name] = stdio_ctx
             self._read_streams[server_name] = read_stream
             self._write_streams[server_name] = write_stream
 
-            # Create and initialize session (store the context manager, not using async with)
+            # Create and initialize session, also storing its context manager
             session = ClientSession(read_stream, write_stream)
-            session_ctx = session.__aenter__()
-            client = await session_ctx
+            client = await session.__aenter__()
             await client.initialize()
 
+            # Store both the client and its context manager for proper cleanup
             self._clients[server_name] = client
+            self._session_contexts[server_name] = session
             self._mark_connected()
             logger.info(f"Successfully connected to server: {server_name}")
 
         except Exception as e:
             logger.error(f"Failed to connect to server '{server_name}': {e}")
+            # Clean up any partially created contexts
+            if server_name in self._stdio_contexts:
+                try:
+                    await self._stdio_contexts[server_name].__aexit__(None, None, None)
+                except Exception:
+                    pass
+                del self._stdio_contexts[server_name]
             raise ServerConnectionError(
                 f"Could not connect to MCP server '{server_name}': {e}"
             )
@@ -417,18 +432,28 @@ class McpClientManager:
         """
         logger.info("Cleaning up MCP Client Manager")
 
-        # Close all client sessions
-        for server_name, client in self._clients.items():
+        # Properly exit all session contexts
+        for server_name in list(self._session_contexts.keys()):
             try:
-                # Note: ClientSession is an async context manager
-                # In actual usage it should be used with 'async with'
-                # Here we just log that we're releasing it
-                logger.debug(f"Closing connection to server: {server_name}")
+                session_ctx = self._session_contexts[server_name]
+                await session_ctx.__aexit__(None, None, None)
+                logger.debug(f"Closed session context for server: {server_name}")
             except Exception as e:
-                logger.error(f"Error closing connection to '{server_name}': {e}")
+                logger.error(f"Error closing session context for '{server_name}': {e}")
+
+        # Properly exit all stdio contexts
+        for server_name in list(self._stdio_contexts.keys()):
+            try:
+                stdio_ctx = self._stdio_contexts[server_name]
+                await stdio_ctx.__aexit__(None, None, None)
+                logger.debug(f"Closed stdio context for server: {server_name}")
+            except Exception as e:
+                logger.error(f"Error closing stdio context for '{server_name}': {e}")
 
         # Clear all state
         self._clients.clear()
+        self._session_contexts.clear()
+        self._stdio_contexts.clear()
         self._tool_cache.clear()
         self._read_streams.clear()
         self._write_streams.clear()

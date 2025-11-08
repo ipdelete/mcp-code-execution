@@ -1,12 +1,12 @@
 {
   "mcpServers": {
     "git": {
-      "command": "npx",
-      "args": ["-y", "@cyanheads/git-mcp-server"]
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "."]
     },
     "fetch": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
     }
   }
 }

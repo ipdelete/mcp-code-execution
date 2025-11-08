@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from runtime.mcp_client import get_mcp_client_manager
+from runtime.mcp_client import get_mcp_client_manager, ConnectionState
 from runtime.exceptions import ToolNotFoundError
 
 
@@ -111,4 +111,4 @@ async def test_cleanup():
 
     # Verify connections closed
     assert len(manager._clients) == 0
-    assert manager._initialized is False
+    assert manager._state == ConnectionState.UNINITIALIZED
