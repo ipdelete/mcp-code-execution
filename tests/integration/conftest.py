@@ -1,7 +1,6 @@
 """Pytest configuration for integration tests."""
 
 import json
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -21,9 +20,7 @@ def mcp_config_for_tests(tmp_path_factory):
     This ensures tests can run even though mcp_config.json is in .gitignore.
     """
     # Read the example config
-    example_config_path = (
-        Path(__file__).parent.parent.parent / "mcp_config.example.json"
-    )
+    example_config_path = Path(__file__).parent.parent.parent / "mcp_config.example.json"
 
     if not example_config_path.exists():
         pytest.skip("mcp_config.example.json not found")
