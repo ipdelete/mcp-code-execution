@@ -197,33 +197,33 @@ branch: python-port
 
 ### Tasks
 
-- [ ] T076 Create `src/runtime/schema_utils.py` for JSON Schema utilities
-- [ ] T077 Implement `json_schema_to_pydantic_field()` function: handle string, number, integer, boolean, null types
-- [ ] T078 Add support for array types with items schema
-- [ ] T079 Add support for object types with properties (generate nested Pydantic models)
-- [ ] T080 Add support for additionalProperties (Dict[str, T])
-- [ ] T081 Add support for enum constraints (Literal types)
-- [ ] T082 Add support for union types (["string", "null"] → Optional[str])
-- [ ] T083 Add support for required vs optional fields
-- [ ] T084 Implement `generate_pydantic_model()` function for creating model classes
-- [ ] T085 Create `src/runtime/generate_wrappers.py` with main generation logic
-- [ ] T086 Implement `generate_tool_wrapper()` function: create async function with type hints
-- [ ] T087 Add docstring generation from tool descriptions in generate_tool_wrapper()
-- [ ] T088 Add defensive unwrapping in generated wrappers (getattr(result, 'value', result))
-- [ ] T089 Integrate field normalization into generate_tool_wrapper()
-- [ ] T090 Implement `generate_wrappers()` main orchestrator: load mcp_config.json
-- [ ] T091 Add logic to connect to each server and call list_tools()
-- [ ] T092 Add logic to generate wrappers for each tool: write to servers/{server}/{tool}.py
-- [ ] T093 Implement __init__.py barrel export generation for each server
-- [ ] T094 Implement per-server README.md generation
-- [ ] T095 Add logic to preserve custom utils.py files (don't overwrite)
-- [ ] T096 Add `__name__ == "__main__"` block with asyncio.run(generate_wrappers())
-- [ ] T097 Add script alias to `pyproject.toml`: mcp-generate = "runtime.generate_wrappers:main"
-- [ ] T098 Test generation with git server: `uv run python -m runtime.generate_wrappers`
-- [ ] T099 Verify generated Pydantic models are valid: `uv run mypy src/servers/`
-- [ ] T100 [P] Create unit tests in `tests/test_generate_wrappers.py` for schema conversion
-- [ ] T101 [P] Add unit test for type mapping completeness
-- [ ] T102 Run unit tests: `uv run pytest tests/test_generate_wrappers.py`
+- [x] T076 Create `src/runtime/schema_utils.py` for JSON Schema utilities
+- [x] T077 Implement `json_schema_to_pydantic_field()` function: handle string, number, integer, boolean, null types
+- [x] T078 Add support for array types with items schema
+- [x] T079 Add support for object types with properties (generate nested Pydantic models)
+- [x] T080 Add support for additionalProperties (Dict[str, T])
+- [x] T081 Add support for enum constraints (Literal types)
+- [x] T082 Add support for union types (["string", "null"] → Optional[str])
+- [x] T083 Add support for required vs optional fields
+- [x] T084 Implement `generate_pydantic_model()` function for creating model classes
+- [x] T085 Create `src/runtime/generate_wrappers.py` with main generation logic
+- [x] T086 Implement `generate_tool_wrapper()` function: create async function with type hints
+- [x] T087 Add docstring generation from tool descriptions in generate_tool_wrapper()
+- [x] T088 Add defensive unwrapping in generated wrappers (getattr(result, 'value', result))
+- [x] T089 Integrate field normalization into generate_tool_wrapper()
+- [x] T090 Implement `generate_wrappers()` main orchestrator: load mcp_config.json
+- [x] T091 Add logic to connect to each server and call list_tools()
+- [x] T092 Add logic to generate wrappers for each tool: write to servers/{server}/{tool}.py
+- [x] T093 Implement __init__.py barrel export generation for each server
+- [x] T094 Implement per-server README.md generation
+- [x] T095 Add logic to preserve custom utils.py files (don't overwrite)
+- [x] T096 Add `__name__ == "__main__"` block with asyncio.run(generate_wrappers())
+- [x] T097 Add script alias to `pyproject.toml`: mcp-generate = "runtime.generate_wrappers:main"
+- [x] T098 Test generation with git server: `uv run python -m runtime.generate_wrappers`
+- [x] T099 Verify generated Pydantic models are valid: `uv run mypy src/servers/`
+- [x] T100 [P] Create unit tests in `tests/test_generate_wrappers.py` for schema conversion
+- [x] T101 [P] Add unit test for type mapping completeness
+- [x] T102 Run unit tests: `uv run pytest tests/test_generate_wrappers.py`
 
 **Validation**: CHK049-CHK062, CHK098, CHK100
 

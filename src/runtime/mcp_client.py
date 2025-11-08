@@ -198,20 +198,22 @@ class McpClientManager:
             )
 
             # Establish stdio connection
-            # Note: stdio_client has incomplete typing in the MCP SDK
-            streams: Any = stdio_client(server_params)
-            read_stream: Any
-            write_stream: Any
+            # Note: stdio_client returns a context manager that yields (read, write) streams
+            stdio_ctx = stdio_client(server_params)
+            streams = await stdio_ctx.__aenter__()
             read_stream, write_stream = streams
             self._read_streams[server_name] = read_stream
             self._write_streams[server_name] = write_stream
 
-            # Create and initialize session
-            async with ClientSession(read_stream, write_stream) as session:
-                await session.initialize()
-                self._clients[server_name] = session
-                self._mark_connected()
-                logger.info(f"Successfully connected to server: {server_name}")
+            # Create and initialize session (store the context manager, not using async with)
+            session = ClientSession(read_stream, write_stream)
+            session_ctx = session.__aenter__()
+            client = await session_ctx
+            await client.initialize()
+
+            self._clients[server_name] = client
+            self._mark_connected()
+            logger.info(f"Successfully connected to server: {server_name}")
 
         except Exception as e:
             logger.error(f"Failed to connect to server '{server_name}': {e}")

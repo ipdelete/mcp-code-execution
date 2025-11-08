@@ -81,20 +81,20 @@
 
 ## Phase 5: Wrapper Generation
 
-- [ ] CHK049 - Does json_schema_to_pydantic_field handle all JSON Schema types (string, number, integer, boolean, null, array, object)? [Completeness, Plan §Phase 5 Type Mapping]
-- [ ] CHK050 - Does json_schema_to_pydantic_field handle union types (["string", "null"])? [Completeness, Plan §Phase 5 Type Mapping]
-- [ ] CHK051 - Does json_schema_to_pydantic_field handle enum constraints? [Completeness, Plan §Phase 5 Type Mapping]
-- [ ] CHK052 - Does json_schema_to_pydantic_field handle nested objects (generate Pydantic models)? [Completeness, Plan §Phase 5 Type Mapping]
-- [ ] CHK053 - Does json_schema_to_pydantic_field handle additionalProperties (Dict[str, T])? [Completeness, Plan §Phase 5 Type Mapping]
-- [ ] CHK054 - Does generate_pydantic_model distinguish required vs optional fields? [Completeness, Plan §Phase 5 Key Components]
-- [ ] CHK055 - Does generate_tool_wrapper include docstrings from tool descriptions? [Completeness, Plan §Phase 5 Key Components]
-- [ ] CHK056 - Does generate_tool_wrapper implement defensive unwrapping (getattr(result, 'value', result))? [Completeness, Plan §Phase 5 Key Features]
-- [ ] CHK057 - Does generate_tool_wrapper integrate field normalization? [Completeness, Plan §Phase 5 Key Features]
-- [ ] CHK058 - Does generate_wrappers preserve custom utils.py files? [Completeness, Plan §Phase 5 Key Features]
-- [ ] CHK059 - Does generate_wrappers create __init__.py barrel exports? [Completeness, Plan §Phase 5 Key Features]
-- [ ] CHK060 - Does generate_wrappers create per-server README.md files? [Completeness, Plan §Phase 5 Key Features]
-- [ ] CHK061 - Can wrapper generation be invoked as CLI command (mcp-generate)? [Completeness, Plan §Phase 5 CLI]
-- [ ] CHK062 - Are generated wrappers tested with both git and fetch servers? [Completeness, Plan §Phase 5 Testing]
+- [x] CHK049 - Does json_schema_to_pydantic_field handle all JSON Schema types (string, number, integer, boolean, null, array, object)? [Completeness, Plan §Phase 5 Type Mapping]
+- [x] CHK050 - Does json_schema_to_pydantic_field handle union types (["string", "null"])? [Completeness, Plan §Phase 5 Type Mapping]
+- [x] CHK051 - Does json_schema_to_pydantic_field handle enum constraints? [Completeness, Plan §Phase 5 Type Mapping]
+- [x] CHK052 - Does json_schema_to_pydantic_field handle nested objects (generate Pydantic models)? [Completeness, Plan §Phase 5 Type Mapping]
+- [x] CHK053 - Does json_schema_to_pydantic_field handle additionalProperties (Dict[str, T])? [Completeness, Plan §Phase 5 Type Mapping]
+- [x] CHK054 - Does generate_pydantic_model distinguish required vs optional fields? [Completeness, Plan §Phase 5 Key Components]
+- [x] CHK055 - Does generate_tool_wrapper include docstrings from tool descriptions? [Completeness, Plan §Phase 5 Key Components]
+- [x] CHK056 - Does generate_tool_wrapper implement defensive unwrapping (getattr(result, 'value', result))? [Completeness, Plan §Phase 5 Key Features]
+- [x] CHK057 - Does generate_tool_wrapper integrate field normalization? [Completeness, Plan §Phase 5 Key Features]
+- [x] CHK058 - Does generate_wrappers preserve custom utils.py files? [Completeness, Plan §Phase 5 Key Features]
+- [x] CHK059 - Does generate_wrappers create __init__.py barrel exports? [Completeness, Plan §Phase 5 Key Features]
+- [x] CHK060 - Does generate_wrappers create per-server README.md files? [Completeness, Plan §Phase 5 Key Features]
+- [x] CHK061 - Can wrapper generation be invoked as CLI command (mcp-generate)? [Completeness, Plan §Phase 5 CLI]
+- [x] CHK062 - Are generated wrappers tested with both git and fetch servers? [Completeness, Plan §Phase 5 Testing]
 
 ## Phase 6: Schema Discovery
 
@@ -145,9 +145,9 @@
 ## Testing Coverage
 
 - [x] CHK097 - Are unit tests defined for mcp_client.py (lazy loading)? [Completeness, Plan §Testing Strategy]
-- [ ] CHK098 - Are unit tests defined for schema_utils.py (JSON Schema conversion)? [Completeness, Plan §Testing Strategy]
+- [x] CHK098 - Are unit tests defined for schema_utils.py (JSON Schema conversion)? [Completeness, Plan §Testing Strategy]
 - [x] CHK099 - Are unit tests defined for normalize_fields.py (field normalization)? [Completeness, Plan §Testing Strategy]
-- [ ] CHK100 - Are unit tests defined for generate_wrappers.py (code generation)? [Completeness, Plan §Testing Strategy]
+- [x] CHK100 - Are unit tests defined for generate_wrappers.py (code generation)? [Completeness, Plan §Testing Strategy]
 - [ ] CHK101 - Are integration tests defined for filesystem server? [Completeness, Plan §Testing Strategy]
 - [ ] CHK102 - Are integration tests defined for github server? [Completeness, Plan §Testing Strategy]
 - [ ] CHK103 - Are integration tests defined for harness (script execution)? [Completeness, Plan §Testing Strategy]
