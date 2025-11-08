@@ -240,20 +240,20 @@ branch: python-port
 
 ### Tasks
 
-- [ ] T103 Create `discovery_config.example.json` at root with safe tool examples
-- [ ] T104 Create `src/runtime/discover_schemas.py` with main discovery logic
-- [ ] T105 Implement config loading from discovery_config.json
-- [ ] T106 Implement safe tool execution (read-only operations only)
-- [ ] T107 Implement response capture and unwrapping (.value)
-- [ ] T108 Implement `infer_pydantic_model_from_response()` function: handle str, int, float, bool, list, dict, None
-- [ ] T109 Add array handling: use first element as template
-- [ ] T110 Mark all discovered fields as Optional by default
-- [ ] T111 Add metadata preservation (tool description, sample params)
-- [ ] T112 Add warning comments about defensive coding in generated files
-- [ ] T113 Write discovered types to servers/{server}/discovered_types.py
-- [ ] T114 Add `__name__ == "__main__"` block with asyncio.run(discover_schemas())
-- [ ] T115 Add script alias to `pyproject.toml`: mcp-discover = "runtime.discover_schemas:main"
-- [ ] T116 Test discovery with safe GitHub tool: `uv run python -m runtime.discover_schemas`
+- [x] T103 Create `discovery_config.example.json` at root with safe tool examples
+- [x] T104 Create `src/runtime/discover_schemas.py` with main discovery logic
+- [x] T105 Implement config loading from discovery_config.json
+- [x] T106 Implement safe tool execution (read-only operations only)
+- [x] T107 Implement response capture and unwrapping (.value)
+- [x] T108 Implement `infer_pydantic_model_from_response()` function: handle str, int, float, bool, list, dict, None
+- [x] T109 Add array handling: use first element as template
+- [x] T110 Mark all discovered fields as Optional by default
+- [x] T111 Add metadata preservation (tool description, sample params)
+- [x] T112 Add warning comments about defensive coding in generated files
+- [x] T113 Write discovered types to servers/{server}/discovered_types.py
+- [x] T114 Add `__name__ == "__main__"` block with asyncio.run(discover_schemas())
+- [x] T115 Add script alias to `pyproject.toml`: mcp-discover = "runtime.discover_schemas:main"
+- [x] T116 Test discovery with safe GitHub tool: `uv run python -m runtime.discover_schemas`
 
 **Validation**: CHK063-CHK071
 

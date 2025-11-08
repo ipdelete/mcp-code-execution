@@ -98,15 +98,15 @@
 
 ## Phase 6: Schema Discovery
 
-- [ ] CHK063 - Does discover_schemas.py load discovery_config.json? [Completeness, Plan §Phase 6 Key Components]
-- [ ] CHK064 - Does discover_schemas execute only "safe tools" (read-only operations)? [Completeness, Plan §Phase 6 Key Features]
-- [ ] CHK065 - Does discover_schemas capture and unwrap responses (.value)? [Completeness, Plan §Phase 6 Key Components]
-- [ ] CHK066 - Does infer_pydantic_model_from_response handle all Python types (str, int, float, bool, list, dict, None)? [Completeness, Plan §Phase 6 Key Components]
-- [ ] CHK067 - Does infer_pydantic_model_from_response handle arrays (use first element as template)? [Completeness, Plan §Phase 6 Key Features]
-- [ ] CHK068 - Are all discovered fields marked Optional by default? [Completeness, Plan §Phase 6 Key Features]
-- [ ] CHK069 - Are discovered types written to servers/{server}/discovered_types.py? [Clarity, Plan §Phase 6 Key Components]
-- [ ] CHK070 - Do discovered types include warning comments about defensive coding? [Completeness, Plan §Phase 6 Key Features]
-- [ ] CHK071 - Is discovery_config.example.json provided at root level? [Completeness, Plan §Phase 6 Deliverables]
+- [x] CHK063 - Does discover_schemas.py load discovery_config.json? [Completeness, Plan §Phase 6 Key Components]
+- [x] CHK064 - Does discover_schemas execute only "safe tools" (read-only operations)? [Completeness, Plan §Phase 6 Key Features]
+- [x] CHK065 - Does discover_schemas capture and unwrap responses (.value)? [Completeness, Plan §Phase 6 Key Components]
+- [x] CHK066 - Does infer_pydantic_model_from_response handle all Python types (str, int, float, bool, list, dict, None)? [Completeness, Plan §Phase 6 Key Components]
+- [x] CHK067 - Does infer_pydantic_model_from_response handle arrays (use first element as template)? [Completeness, Plan §Phase 6 Key Features]
+- [x] CHK068 - Are all discovered fields marked Optional by default? [Completeness, Plan §Phase 6 Key Features]
+- [x] CHK069 - Are discovered types written to servers/{server}/discovered_types.py? [Clarity, Plan §Phase 6 Key Components]
+- [x] CHK070 - Do discovered types include warning comments about defensive coding? [Completeness, Plan §Phase 6 Key Features]
+- [x] CHK071 - Is discovery_config.example.json provided at root level? [Completeness, Plan §Phase 6 Deliverables]
 
 ## Phase 7: Integration Testing
 
