@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "test-server": {
+      "command": "echo",
+      "args": ["test"],
+      "disabled": true
+    }
+  }
+}
