@@ -27,7 +27,7 @@ logging.basicConfig(
 logger = logging.getLogger("mcp_execution.harness")
 
 
-async def async_main() -> NoReturn:
+def sync_main() -> NoReturn:
     """Main entry point for script execution."""
 
     # 1. Parse CLI arguments
@@ -54,23 +54,13 @@ async def async_main() -> NoReturn:
         sys.path.insert(0, str(src_path))
         logger.debug(f"Added to sys.path: {src_path}")
 
-    # 4. Initialize MCP client manager
-    manager = get_mcp_client_manager()
-    try:
-        await manager.initialize()
-        logger.info("MCP client manager initialized")
-    except McpExecutionError as e:
-        logger.error(f"Failed to initialize MCP client: {e}")
-        sys.exit(1)
-
-    # 5. Set up signal handling (CORRECT async approach)
-    shutdown_event = asyncio.Event()
-
+    # 4. Set up signal handling
+    # Note: MCP client manager will be initialized lazy on first use by the script
     def signal_handler(signum: int, frame: Any) -> None:
         """Handle shutdown signals."""
         signal_name = signal.Signals(signum).name
         logger.info(f"Received {signal_name}, shutting down...")
-        shutdown_event.set()
+        sys.exit(130)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
@@ -78,11 +68,6 @@ async def async_main() -> NoReturn:
     # 6. Execute the script using runpy
     exit_code = 0
     try:
-        # Check if shutdown was requested
-        if shutdown_event.is_set():
-            logger.info("Shutdown requested before execution")
-            sys.exit(130)
-
         # Execute script in isolated namespace
         logger.info(f"Executing script: {script_path}")
 
@@ -99,22 +84,34 @@ async def async_main() -> NoReturn:
         exit_code = 1
 
     finally:
-        # 7. Cleanup
-        logger.debug("Cleaning up MCP connections...")
-        try:
-            await manager.cleanup()
-            logger.info("Cleanup complete")
-        except Exception as e:
-            logger.error(f"Cleanup failed: {e}", exc_info=True)
-            if exit_code == 0:
-                exit_code = 1
+        # 7. Cleanup MCP client manager if it was initialized
+        manager = get_mcp_client_manager()
+        # Check if manager is initialized (not in UNINITIALIZED state)
+        from .mcp_client import ConnectionState
+        if manager._state != ConnectionState.UNINITIALIZED:
+            logger.info("Cleaning up MCP Client Manager...")
+
+            async def async_cleanup() -> None:
+                """Cleanup MCP connections."""
+                try:
+                    await manager.cleanup()
+                    logger.info("Cleanup complete")
+                except Exception as e:
+                    logger.error(f"Cleanup failed: {e}", exc_info=True)
+                    raise
+
+            try:
+                asyncio.run(async_cleanup())
+            except Exception:
+                if exit_code == 0:
+                    exit_code = 1
 
         sys.exit(exit_code)
 
 
 def main() -> NoReturn:
-    """Synchronous entry point that runs the async main function."""
-    asyncio.run(async_main())
+    """Entry point for the harness."""
+    sync_main()
 
 
 if __name__ == "__main__":
