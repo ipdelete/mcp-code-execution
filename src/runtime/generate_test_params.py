@@ -7,10 +7,14 @@ It also classifies tools by safety (SAFE/DANGEROUS/UNKNOWN) based on patterns
 and descriptions.
 """
 
+import argparse
 import json
 import logging
+import os
 import re
+import subprocess
 from enum import Enum
+from pathlib import Path
 from typing import Any
 
 try:
@@ -127,21 +131,133 @@ def classify_tool(tool_name: str, description: str | None = None) -> ToolSafety:
     return ToolSafety.UNKNOWN
 
 
-def generate_test_parameters(
+def _load_prompt_template() -> str:
+    """Load the prompt template from src/prompts/generate_test_params.txt."""
+    # Get the directory where this module is located
+    module_dir = Path(__file__).parent
+    # Navigate to src/prompts/generate_test_params.txt
+    template_path = module_dir.parent / "prompts" / "generate_test_params.txt"
+
+    try:
+        return template_path.read_text()
+    except FileNotFoundError:
+        logger.warning(f"Prompt template not found at {template_path}")
+        # Fallback to inline template
+        return """Generate minimal test parameters for this MCP tool.
+
+Tool: {tool_name}
+{description_line}
+
+Input Schema:
+```json
+{schema_json}
+```
+
+Requirements:
+- Return ONLY valid JSON that satisfies the schema
+- Use minimal values: empty strings, 0, 1, [], {{}}
+- Be conservative: avoid URLs, file paths, or special values unless required
+- Ensure all required fields are present
+- For arrays/objects, use minimal examples (1-2 items)
+
+Return ONLY the JSON object, no explanation."""
+
+
+def _generate_with_claude_code(
     tool_name: str,
     input_schema: dict[str, Any],
     description: str | None = None,
 ) -> dict[str, Any] | None:
     """
-    Generate test parameters for a tool using Claude.
-
-    Uses Claude Haiku to generate minimal but valid test parameters that
-    satisfy the tool's inputSchema. Returns None on any error (safe fallback).
+    Generate test parameters using Claude Code CLI via subprocess.
 
     Args:
         tool_name: Name of the tool
         input_schema: JSON Schema for tool inputs
         description: Optional tool description for context
+
+    Returns:
+        Dict of test parameters, or None if generation fails
+    """
+    try:
+        # Load and format the prompt template
+        template = _load_prompt_template()
+        description_line = f"Description: {description}" if description else ""
+        schema_json = json.dumps(input_schema, indent=2)
+
+        prompt = template.format(
+            tool_name=tool_name,
+            description_line=description_line,
+            schema_json=schema_json,
+        )
+
+        # Run claude CLI command
+        result = subprocess.run(
+            ["claude", "-p", prompt, "--dangerously-skip-permissions"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        if result.returncode != 0:
+            logger.warning(
+                f"Claude Code CLI failed for {tool_name}: {result.stderr}"
+            )
+            return None
+
+        # Extract JSON from response
+        response_text = result.stdout.strip()
+
+        # Handle markdown code blocks
+        if response_text.startswith("```"):
+            response_text = response_text.split("```")[1]
+            if response_text.startswith("json"):
+                response_text = response_text[4:]
+            response_text = response_text.strip()
+
+        params = json.loads(response_text)
+
+        if not isinstance(params, dict):
+            logger.warning(f"Generated params for {tool_name} is not a dict: {type(params)}")
+            return None
+
+        logger.debug(f"Generated params for {tool_name}: {params}")
+        return params
+
+    except subprocess.TimeoutExpired:
+        logger.warning(f"Claude Code CLI timed out for {tool_name}")
+        return None
+    except FileNotFoundError:
+        logger.warning("Claude Code CLI not found. Install from: https://docs.claude.com")
+        return None
+    except json.JSONDecodeError as e:
+        logger.warning(f"Failed to parse generated params for {tool_name}: {e}")
+        return None
+    except Exception as e:
+        logger.warning(f"Unexpected error with Claude Code CLI for {tool_name}: {e}")
+        return None
+
+
+def generate_test_parameters(
+    tool_name: str,
+    input_schema: dict[str, Any],
+    description: str | None = None,
+    use_claude_api: bool = True,
+    use_claude_code: bool = False,
+) -> dict[str, Any] | None:
+    """
+    Generate test parameters for a tool using Claude.
+
+    Uses Claude Haiku API or Claude Code CLI to generate minimal but valid
+    test parameters that satisfy the tool's inputSchema. Returns None on any
+    error (safe fallback).
+
+    Args:
+        tool_name: Name of the tool
+        input_schema: JSON Schema for tool inputs
+        description: Optional tool description for context
+        use_claude_api: If False, skip Claude API and return None (default: True)
+        use_claude_code: If True, use Claude Code CLI instead of API (default: False)
 
     Returns:
         Dict of test parameters, or None if generation fails
@@ -158,6 +274,15 @@ def generate_test_parameters(
         >>> params = generate_test_parameters("git_log", schema)
         >>> # Returns: {"repo_path": ".", "max_count": 1}
     """
+    # Claude Code takes precedence if both are enabled
+    if use_claude_code:
+        logger.debug(f"Using Claude Code CLI for {tool_name}")
+        return _generate_with_claude_code(tool_name, input_schema, description)
+
+    if not use_claude_api:
+        logger.debug(f"Skipping Claude API for {tool_name} (--claude-api disabled)")
+        return None
+
     if anthropic is None:
         logger.warning("anthropic library not installed. " "Install with: uv pip install anthropic")
         return None
@@ -165,24 +290,16 @@ def generate_test_parameters(
     try:
         client = anthropic.Anthropic()
 
-        prompt = f"""Generate minimal test parameters for this MCP tool.
+        # Load and format the prompt template
+        template = _load_prompt_template()
+        description_line = f"Description: {description}" if description else ""
+        schema_json = json.dumps(input_schema, indent=2)
 
-Tool: {tool_name}
-{f'Description: {description}' if description else ''}
-
-Input Schema:
-```json
-{json.dumps(input_schema, indent=2)}
-```
-
-Requirements:
-- Return ONLY valid JSON that satisfies the schema
-- Use minimal values: empty strings, 0, 1, [], {{}}
-- Be conservative: avoid URLs, file paths, or special values unless required
-- Ensure all required fields are present
-- For arrays/objects, use minimal examples (1-2 items)
-
-Return ONLY the JSON object, no explanation."""
+        prompt = template.format(
+            tool_name=tool_name,
+            description_line=description_line,
+            schema_json=schema_json,
+        )
 
         message = client.messages.create(
             model="claude-3-5-haiku-20241022",
@@ -224,6 +341,8 @@ Return ONLY the JSON object, no explanation."""
 def build_discovery_config(
     servers_tools: dict[str, list[dict[str, Any]]],
     skip_dangerous: bool = True,
+    use_claude_api: bool = True,
+    use_claude_code: bool = False,
 ) -> dict[str, Any]:
     """
     Build a discovery config from servers and their tools.
@@ -235,6 +354,8 @@ def build_discovery_config(
         servers_tools: Dict mapping server names to list of tool definitions
                       Each tool should have: name, inputSchema, description
         skip_dangerous: If True, exclude DANGEROUS tools from config (default: True)
+        use_claude_api: If False, skip Claude API calls for parameter generation (default: True)
+        use_claude_code: If True, use Claude Code CLI instead of API (default: False)
 
     Returns:
         Dictionary suitable for writing to discovery_config.json
@@ -295,7 +416,9 @@ def build_discovery_config(
                 continue
 
             # Generate test parameters
-            params = generate_test_parameters(tool_name, input_schema, description)
+            params = generate_test_parameters(
+                tool_name, input_schema, description, use_claude_api, use_claude_code
+            )
             if params is None:
                 logger.warning(f"Failed to generate params for {server_name}.{tool_name}")
                 tools_skipped["unknown"].append(tool_name)
@@ -356,6 +479,8 @@ async def generate_discovery_config_file(
     mcp_config_path: str | None = None,
     output_path: str | None = None,
     skip_dangerous: bool = True,
+    use_claude_api: bool = True,
+    use_claude_code: bool = False,
 ) -> None:
     """
     Main entry point: generate discovery_config.json from mcp_config.json.
@@ -367,9 +492,9 @@ async def generate_discovery_config_file(
         mcp_config_path: Path to mcp_config.json (default: ./mcp_config.json)
         output_path: Path to write discovery_config.json (default: ./discovery_config.json)
         skip_dangerous: Skip dangerous tools by default (default: True)
+        use_claude_api: Use Claude API to generate test parameters (default: True)
+        use_claude_code: Use Claude Code CLI instead of API (default: False)
     """
-    import aiofiles
-
     from .config import McpConfig
     from .mcp_client import McpClientManager
 
@@ -379,8 +504,8 @@ async def generate_discovery_config_file(
     logger.info(f"Loading MCP config from: {mcp_config_path_str}")
 
     try:
-        async with aiofiles.open(mcp_config_path_str) as f:
-            content = await f.read()
+        with open(mcp_config_path_str) as f:
+            content = f.read()
         mcp_config_dict = json.loads(content)
         mcp_config = McpConfig.from_dict(mcp_config_dict)
     except FileNotFoundError:
@@ -452,13 +577,18 @@ async def generate_discovery_config_file(
 
     # Build discovery config
     logger.info("Generating discovery config...")
-    discovery_config = build_discovery_config(servers_tools, skip_dangerous=skip_dangerous)
+    discovery_config = build_discovery_config(
+        servers_tools,
+        skip_dangerous=skip_dangerous,
+        use_claude_api=use_claude_api,
+        use_claude_code=use_claude_code,
+    )
 
-    # Write config file
+    # Write config file (using synchronous write to avoid cleanup issues)
     try:
-        async with aiofiles.open(output_path_str, "w") as f:
-            config_content = json.dumps(discovery_config, indent=2)
-            await f.write(config_content)
+        config_content = json.dumps(discovery_config, indent=2)
+        with open(output_path_str, "w") as f:
+            f.write(config_content)
         logger.info(f"Wrote discovery config to: {output_path_str}")
     except Exception as e:
         logger.error(f"Failed to write discovery config: {e}")
@@ -472,12 +602,58 @@ def main() -> None:
     """CLI entry point."""
     import asyncio
 
+    parser = argparse.ArgumentParser(
+        description="Generate discovery config from MCP tool definitions"
+    )
+    parser.add_argument(
+        "--claude-api",
+        action="store_true",
+        default=True,
+        help="Use Claude API to generate test parameters (default: enabled)",
+    )
+    parser.add_argument(
+        "--no-claude-api",
+        action="store_false",
+        dest="claude_api",
+        help="Disable Claude API for test parameter generation",
+    )
+    parser.add_argument(
+        "--claude-code",
+        action="store_true",
+        help="Use Claude Code CLI instead of API (requires 'claude' command)",
+    )
+    parser.add_argument(
+        "--mcp-config",
+        default="./mcp_config.json",
+        help="Path to mcp_config.json (default: ./mcp_config.json)",
+    )
+    parser.add_argument(
+        "--output",
+        default="./discovery_config.json",
+        help="Path to write discovery_config.json (default: ./discovery_config.json)",
+    )
+    parser.add_argument(
+        "--include-dangerous",
+        action="store_true",
+        help="Include dangerous tools in config (default: skip them)",
+    )
+
+    args = parser.parse_args()
+
     logging.basicConfig(
         level=logging.INFO,
         format="[%(levelname)s] %(message)s",
     )
 
-    asyncio.run(generate_discovery_config_file())
+    asyncio.run(
+        generate_discovery_config_file(
+            mcp_config_path=args.mcp_config,
+            output_path=args.output,
+            skip_dangerous=not args.include_dangerous,
+            use_claude_api=args.claude_api,
+            use_claude_code=args.claude_code,
+        )
+    )
 
 
 if __name__ == "__main__":
