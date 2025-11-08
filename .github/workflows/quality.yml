@@ -1,0 +1,24 @@
+name: Quality Checks
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install dependencies
+        run: uv sync --all-extras
+      - name: Run tests
+        run: uv run pytest
+      - name: Type check
+        run: uv run mypy src/
+      - name: Lint
+        run: uv run ruff check src/ tests/
+      - name: Format check
+        run: uv run black --check src/ tests/

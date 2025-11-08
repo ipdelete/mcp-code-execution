@@ -9,10 +9,63 @@ dist/
 servers/*/
 
 # User-specific MCP server config (contains org names, projects)
-mcp-config.json
+mcp_config.json
 
 # User-specific discovery config (contains real project names, IDs)
-discovery-config.json
+discovery_config.json
 
 # User workspace scripts (personal/project-specific)
 workspace/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.uv/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Linting
+.ruff_cache/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# uv lock file (keep in git for reproducibility)
+# uv.lock

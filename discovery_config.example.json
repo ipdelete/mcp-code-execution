@@ -1,0 +1,35 @@
+{
+  "servers": {
+    "git": {
+      "safeTools": {
+        "git_status": {
+          "repo_path": "."
+        },
+        "git_log": {
+          "repo_path": ".",
+          "max_count": 1
+        }
+      }
+    },
+    "fetch": {
+      "safeTools": {
+        "fetch": {
+          "url": "https://example.com",
+          "timeout": 5
+        }
+      }
+    },
+    "github": {
+      "safeTools": {
+        "search_code": {
+          "q": "language:python hello",
+          "per_page": 1
+        },
+        "search_repositories": {
+          "q": "stars:>1000",
+          "per_page": 1
+        }
+      }
+    }
+  }
+}
