@@ -35,7 +35,7 @@ This runtime enables AI agents to work with MCP tools through a progressive disc
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Clone repository
-git clone https://github.com/yourusername/mcp-code-execution.git
+git clone https://github.com/ipdelete/mcp-code-execution.git
 cd mcp-code-execution
 
 # Install dependencies
@@ -55,12 +55,12 @@ Create `mcp_config.json`:
 {
   "mcpServers": {
     "git": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-git"]
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "."]
     },
     "fetch": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
     }
   }
 }
@@ -69,10 +69,6 @@ Create `mcp_config.json`:
 ### 2. Generate Tool Wrappers
 
 ```bash
-# Generate typed wrappers from MCP servers
-uv run python -m runtime.generate_wrappers
-
-# Or use the alias
 uv run mcp-generate
 ```
 
@@ -90,12 +86,19 @@ src/servers/
     fetch.py
 ```
 
-### 3. Write a Script
+### 3. How It Works
 
-Create `workspace/my_script.py`:
+When you ask an AI agent to work with your data:
+
+1. **Agent explores** the available MCP tools via `./servers/`
+2. **Agent writes a script** that uses `call_mcp_tool()` to fetch data from MCP servers
+3. **Script processes locally** - the MCP server returns full data, but the script processes it and returns only a summary
+4. **Agent receives summary** - keeping context lean and token usage minimal
+
+Example script the agent might write:
 
 ```python
-"""Example: Analyze git repository commits."""
+"""Analyze git repository commits."""
 
 import asyncio
 from runtime.mcp_client import call_mcp_tool
@@ -117,15 +120,19 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-### 4. Execute with Harness
+### 4. Agent Execution
+
+When the agent needs to run a script, it uses the harness:
 
 ```bash
-# Run script with MCP support
+# The agent runs this automatically
 uv run python -m runtime.harness workspace/my_script.py
 
-# Or use the alias
+# Or via the convenience alias
 uv run mcp-exec workspace/my_script.py
 ```
+
+The harness manages the MCP client lifecycle, connects to servers, and captures the script's output to send back to the agent.
 
 ## Architecture
 
