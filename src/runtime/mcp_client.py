@@ -5,6 +5,7 @@ on-demand, caches tools, and manages the lifecycle of server connections using
 an explicit state machine pattern for clarity and debugging.
 """
 
+import asyncio
 import json
 import logging
 from enum import Enum
@@ -438,10 +439,10 @@ class McpClientManager:
                 session_ctx = self._session_contexts[server_name]
                 await session_ctx.__aexit__(None, None, None)
                 logger.debug(f"Closed session context for server: {server_name}")
-            except RuntimeError as e:
+            except (RuntimeError, asyncio.CancelledError) as e:
                 # Ignore cancel scope errors that can occur when contexts are entered
                 # and exited in different event loop tasks (e.g., when scripts call asyncio.run())
-                if "cancel scope" in str(e).lower():
+                if "cancel scope" in str(e).lower() or isinstance(e, asyncio.CancelledError):
                     logger.debug(f"Ignoring cancel scope error during cleanup for '{server_name}': {e}")
                 else:
                     logger.error(f"Error closing session context for '{server_name}': {e}")
@@ -454,10 +455,10 @@ class McpClientManager:
                 stdio_ctx = self._stdio_contexts[server_name]
                 await stdio_ctx.__aexit__(None, None, None)
                 logger.debug(f"Closed stdio context for server: {server_name}")
-            except RuntimeError as e:
+            except (RuntimeError, asyncio.CancelledError) as e:
                 # Ignore cancel scope errors that can occur when contexts are entered
                 # and exited in different event loop tasks (e.g., when scripts call asyncio.run())
-                if "cancel scope" in str(e).lower():
+                if "cancel scope" in str(e).lower() or isinstance(e, asyncio.CancelledError):
                     logger.debug(f"Ignoring cancel scope error during cleanup for '{server_name}': {e}")
                 else:
                     logger.error(f"Error closing stdio context for '{server_name}': {e}")
