@@ -270,19 +270,19 @@ branch: python-port
 
 ### Tasks
 
-- [ ] T117 Create `mcp_config.json` at root with git and fetch server configurations
-- [ ] T118 Create `tests/integration/test_git_server.py` with test_git_status() test
-- [ ] T119 Implement git_status integration test: verify connection and response structure
-- [ ] T120 Create `tests/integration/test_fetch_server.py` with test_fetch_url() test
-- [ ] T121 Implement fetch_url integration test: verify content retrieval
-- [ ] T122 Create `tests/integration/test_harness_integration.py` for script execution tests
-- [ ] T123 Create `workspace/example_progressive_disclosure.py` ported from TypeScript version
-- [ ] T124 Implement example: list directory, filter TypeScript files, count files with 'async'
-- [ ] T125 Add local data processing in example (demonstrate pattern)
-- [ ] T126 Add summary-only output (not raw file contents)
-- [ ] T127 Test example execution: `uv run python -m runtime.harness workspace/example_progressive_disclosure.py`
-- [ ] T128 Verify example demonstrates 98.7% token reduction pattern
-- [ ] T129 Run all integration tests: `uv run pytest tests/integration/`
+- [x] T117 Create `mcp_config.json` at root with git and fetch server configurations
+- [x] T118 Create `tests/integration/test_git_server.py` with test_git_status() test
+- [x] T119 Implement git_status integration test: verify connection and response structure
+- [x] T120 Create `tests/integration/test_fetch_server.py` with test_fetch_url() test
+- [x] T121 Implement fetch_url integration test: verify content retrieval
+- [x] T122 Create `tests/integration/test_harness_integration.py` for script execution tests
+- [x] T123 Create `workspace/example_progressive_disclosure.py` ported from TypeScript version
+- [x] T124 Implement example: list directory, filter TypeScript files, count files with 'async'
+- [x] T125 Add local data processing in example (demonstrate pattern)
+- [x] T126 Add summary-only output (not raw file contents)
+- [x] T127 Test example execution: `uv run python -m runtime.harness workspace/example_progressive_disclosure.py`
+- [x] T128 Verify example demonstrates 98.7% token reduction pattern
+- [x] T129 Run all integration tests: `uv run pytest tests/integration/`
 
 **Validation**: CHK072-CHK078, CHK101-CHK103
 

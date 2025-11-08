@@ -110,13 +110,13 @@
 
 ## Phase 7: Integration Testing
 
-- [ ] CHK072 - Are integration tests created for git server (git_status)? [Completeness, Plan §Phase 7 Tasks]
-- [ ] CHK073 - Are integration tests created for fetch server (fetch_url)? [Completeness, Plan §Phase 7 Tasks]
-- [ ] CHK074 - Does example_progressive_disclosure.py demonstrate the 98.7% token reduction pattern? [Completeness, Plan §Phase 7 Tasks]
-- [ ] CHK075 - Does example_progressive_disclosure.py process data locally and return only summaries? [Completeness, Plan §Phase 7 Key Features]
-- [ ] CHK076 - Can example_progressive_disclosure.py be executed via harness? [Completeness, Plan §Phase 7 Tasks]
-- [ ] CHK077 - Does the example use call_mcp_tool or generated wrappers? [Clarity, Plan §Phase 7 Example]
-- [ ] CHK078 - Is end-to-end functionality verified with real MCP servers? [Completeness, Plan §Phase 7 Goal]
+- [x] CHK072 - Are integration tests created for git server (git_status)? [Completeness, Plan §Phase 7 Tasks]
+- [x] CHK073 - Are integration tests created for fetch server (fetch_url)? [Completeness, Plan §Phase 7 Tasks]
+- [x] CHK074 - Does example_progressive_disclosure.py demonstrate the 98.7% token reduction pattern? [Completeness, Plan §Phase 7 Tasks]
+- [x] CHK075 - Does example_progressive_disclosure.py process data locally and return only summaries? [Completeness, Plan §Phase 7 Key Features]
+- [x] CHK076 - Can example_progressive_disclosure.py be executed via harness? [Completeness, Plan §Phase 7 Tasks]
+- [x] CHK077 - Does the example use call_mcp_tool or generated wrappers? [Clarity, Plan §Phase 7 Example]
+- [x] CHK078 - Is end-to-end functionality verified with real MCP servers? [Completeness, Plan §Phase 7 Goal]
 
 ## Phase 8: Documentation & Polish
 
