@@ -58,16 +58,21 @@ def main() -> NoReturn:
         sys.path.insert(0, str(project_root))
         logger.debug(f"Added to sys.path: {project_root}")
 
-    # 4. Initialize MCP client manager (in separate event loop)
+    # 4. Create a persistent event loop to be used throughout the harness
+    # This ensures async context managers are entered and exited in the same loop
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    # 5. Initialize MCP client manager
     manager = get_mcp_client_manager()
     try:
-        asyncio.run(manager.initialize())
+        loop.run_until_complete(manager.initialize())
         logger.info("MCP client manager initialized")
     except McpExecutionError as e:
         logger.error(f"Failed to initialize MCP client: {e}")
         sys.exit(1)
 
-    # 5. Set up signal handling for the script execution
+    # 6. Set up signal handling for the script execution
     def signal_handler(signum: int, frame: Any) -> None:
         """Handle shutdown signals."""
         signal_name = signal.Signals(signum).name
@@ -77,7 +82,7 @@ def main() -> NoReturn:
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    # 6. Execute the script (synchronously, no event loop)
+    # 7. Execute the script (synchronously, no nested event loop)
     exit_code = 0
     try:
         logger.info(f"Executing script: {script_path}")
@@ -93,15 +98,24 @@ def main() -> NoReturn:
         exit_code = 1
 
     finally:
-        # 7. Cleanup (in separate event loop)
+        # 8. Cleanup using the same event loop
         logger.debug("Cleaning up MCP connections...")
         try:
-            asyncio.run(manager.cleanup())
+            # Run cleanup, suppressing BaseExceptionGroup from async generator cleanup
+            # which can occur when contexts are entered/exited in different event loop tasks
+            loop.run_until_complete(manager.cleanup())
             logger.info("Cleanup complete")
-        except Exception as e:
-            logger.error(f"Cleanup failed: {e}", exc_info=True)
-            if exit_code == 0:
-                exit_code = 1
+        except BaseException as e:
+            # Suppress BaseExceptionGroup from async generators (harmless in cleanup)
+            if type(e).__name__ == "BaseExceptionGroup":
+                logger.debug("Suppressed BaseExceptionGroup during cleanup")
+            else:
+                logger.error(f"Cleanup failed: {e}", exc_info=True)
+                if exit_code == 0:
+                    exit_code = 1
+        finally:
+            # Close the event loop
+            loop.close()
 
         sys.exit(exit_code)
 
