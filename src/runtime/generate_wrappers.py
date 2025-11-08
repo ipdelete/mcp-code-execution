@@ -72,7 +72,7 @@ async def {safe_tool_name}(params: {params_model}) -> Dict[str, Any]:
     from runtime.normalize_fields import normalize_field_names
 
     # Call tool
-    result = await call_mcp_tool("{tool_identifier}", params.model_dump())
+    result = await call_mcp_tool("{tool_identifier}", params.model_dump(exclude_none=True))
 
     # Defensive unwrapping
     unwrapped = getattr(result, "value", result)
