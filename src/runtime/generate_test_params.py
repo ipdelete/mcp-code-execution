@@ -10,7 +10,6 @@ and descriptions.
 import argparse
 import json
 import logging
-import os
 import re
 import subprocess
 from enum import Enum
@@ -19,8 +18,10 @@ from typing import Any
 
 try:
     import anthropic
+    from anthropic.types import TextBlock
 except ImportError:
-    anthropic = None
+    anthropic = None  # type: ignore[assignment]
+    TextBlock = None  # type: ignore[assignment, misc]
 
 logger = logging.getLogger("mcp_execution.generate_test_params")
 
@@ -200,9 +201,7 @@ def _generate_with_claude_code(
         )
 
         if result.returncode != 0:
-            logger.warning(
-                f"Claude Code CLI failed for {tool_name}: {result.stderr}"
-            )
+            logger.warning(f"Claude Code CLI failed for {tool_name}: {result.stderr}")
             return None
 
         # Extract JSON from response
@@ -308,7 +307,11 @@ def generate_test_parameters(
         )
 
         # Extract JSON from response
-        response_text = message.content[0].text if message.content else ""
+        response_text = ""
+        if message.content:
+            first_block = message.content[0]
+            if hasattr(first_block, "text"):
+                response_text = first_block.text
         response_text = response_text.strip()
 
         # Handle markdown code blocks

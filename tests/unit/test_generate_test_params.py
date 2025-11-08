@@ -225,9 +225,7 @@ class TestGenerateTestParameters:
             "required": ["name"],
         }
 
-        result = generate_test_parameters(
-            "test_tool", schema, use_claude_api=False
-        )
+        result = generate_test_parameters("test_tool", schema, use_claude_api=False)
 
         assert result is None
 
@@ -262,9 +260,7 @@ class TestGenerateTestParameters:
         mock_result.stderr = ""
 
         with patch("subprocess.run", return_value=mock_result) as mock_run:
-            result = generate_test_parameters(
-                "test_tool", schema, use_claude_code=True
-            )
+            result = generate_test_parameters("test_tool", schema, use_claude_code=True)
 
             assert mock_run.called
             assert result == {"name": "test"}
@@ -284,9 +280,7 @@ class TestGenerateTestParameters:
         }
 
         with patch("subprocess.run", side_effect=FileNotFoundError()):
-            result = generate_test_parameters(
-                "test_tool", schema, use_claude_code=True
-            )
+            result = generate_test_parameters("test_tool", schema, use_claude_code=True)
 
             assert result is None
 
@@ -302,9 +296,7 @@ class TestGenerateTestParameters:
 
         with patch("subprocess.run", return_value=mock_result) as mock_run:
             # Both enabled, should use claude_code
-            generate_test_parameters(
-                "test_tool", schema, use_claude_api=True, use_claude_code=True
-            )
+            generate_test_parameters("test_tool", schema, use_claude_api=True, use_claude_code=True)
 
             assert mock_run.called
 
