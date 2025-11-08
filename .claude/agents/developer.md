@@ -4,7 +4,7 @@ model: sonnet
 
 # Developer Agent
 
-Instructions for writing scripts that interact with MCP servers.
+Instructions for writing Python scripts that interact with MCP servers.
 
 ## Progressive API Discovery
 
@@ -12,7 +12,7 @@ When working with MCP tools that have unknown response structures (marked with "
 
 1. **First Script: Explore Raw Response**
    - Call the API with minimal parameters
-   - Log the FULL raw response with `console.log(JSON.stringify(response, null, 2))`
+   - Log the FULL raw response with `print(json.dumps(response, indent=2))` or `print(repr(response))`
    - Identify the actual structure
 
 2. **Second Script: Extract Data**
@@ -26,35 +26,48 @@ When working with MCP tools that have unknown response structures (marked with "
 
 ## Example Workflow
 
-**User Request:** "List features for team X"
+**User Request:** "Analyze recent commits"
 
 **Step 1 - Exploration:**
-```typescript
-// workspace/explore-backlog-api.ts
-const response = await wit_list_backlog_work_items({...});
-console.log('Raw response:', JSON.stringify(response, null, 2));
+```python
+# workspace/explore_git_log.py
+import asyncio
+import json
+from runtime.mcp_client import call_mcp_tool
+
+async def main():
+    response = await call_mcp_tool("git__git_log", {"repo_path": ".", "max_count": 5})
+    print('Raw response:', json.dumps(response, indent=2) if isinstance(response, dict) else repr(response))
+
+asyncio.run(main())
 ```
 
 **Step 2 - Extraction:**
-```typescript
-// Update after seeing: { workItems: [...] }
-const data = response.value || response;
-const items = data.workItems || [];
-console.log(`Found ${items.length} items`);
-console.log('First item:', JSON.stringify(items[0], null, 2));
+```python
+# Update after seeing the structure
+async def main():
+    response = await call_mcp_tool("git__git_log", {"repo_path": ".", "max_count": 5})
+    
+    # Defensive extraction
+    if isinstance(response, str):
+        lines = response.split('\n')
+        print(f'Found {len(lines)} lines')
+    elif isinstance(response, list):
+        print(f'Found {len(response)} items')
+    
+    print('First item:', response[0] if response else None)
+
+asyncio.run(main())
 ```
 
 **Step 3 - Implementation:**
-```typescript
-// Now build the full feature with proper typing and formatting
+```python
+# Now build the full feature with proper error handling and formatting
 ```
 
 ## Auto-Generated Wrapper Warnings
 
-All wrappers with this warning need progressive discovery:
-```
-⚠ No outputSchema for <tool_name> - using generic type
-```
+Wrappers without `outputSchema` use generic `Dict[str, Any]` return types. Always use defensive coding patterns when working with these tools.
 
 Never assume response structure - always explore first!
 
@@ -62,154 +75,237 @@ Never assume response structure - always explore first!
 
 Since MCP response structures may vary, ALWAYS use defensive patterns:
 
-### Handle Both Wrapped and Direct Responses
-```typescript
-const data = response.value || response;
+### Handle Both Dict and Direct Responses
+
+```python
+# Try to get .value attribute, fall back to response itself
+data = getattr(response, 'value', response)
 ```
 
-### Ensure Arrays Before Using Array Methods
-```typescript
-const items = Array.isArray(data) ? data : [];
-items.forEach(item => { /* safe */ });
+### Ensure Lists Before Iteration
+
+```python
+items = response if isinstance(response, list) else []
+for item in items:
+    # safe to iterate
+    pass
 ```
 
 ### Safe Property Access with Fallbacks
-```typescript
-const displayName = field?.displayName || field || 'Unknown';
+
+```python
+# For dict-like objects
+display_name = item.get('displayName', item.get('name', 'Unknown'))
+
+# For objects with attributes
+display_name = getattr(item, 'displayName', 'Unknown')
 ```
 
 ### Check for Nested Properties
-```typescript
-// API might return: { workItems: [...] } or just [...]
-const items = data.workItems || (Array.isArray(data) ? data : []);
+
+```python
+# API might return: { 'workItems': [...] } or just [...]
+items = data.get('workItems', []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
 ```
 
 ### Safe ID Extraction from References
-```typescript
-const workItemIds = workItemRefs
-  .map((ref: any) => ref.target?.id || ref.id)
-  .filter((id: any) => id !== undefined);
+
+```python
+work_item_ids = [
+    ref.get('target', {}).get('id') or ref.get('id')
+    for ref in work_item_refs
+]
+# Filter out None values
+work_item_ids = [id for id in work_item_ids if id is not None]
 ```
 
 ## Script Structure Template
 
 All scripts in `workspace/` should follow this pattern:
 
-```typescript
-import { tool1, tool2 } from '../servers/server-name';
+```python
+"""
+Script description here.
+"""
 
-// Helper functions at top
-function displayResults(items: any[], context: string) {
-  // Formatting logic
-}
+import asyncio
+from runtime.mcp_client import call_mcp_tool
 
-async function main() {
-  try {
-    // 1. Setup and parameters
-    console.log('Starting task...');
-    
-    // 2. API calls with logging
-    const response = await tool1({ params });
-    console.log(`Got ${response.length} results`);
-    
-    // 3. Defensive data extraction
-    const data = response.value || response;
-    const items = data.items || (Array.isArray(data) ? data : []);
-    
-    // 4. Process and display
-    displayResults(items, 'context');
-    
-  } catch (error: any) {
-    console.error('Error:', error.message || error);
-    if (error.stack) {
-      console.error('\nStack trace:', error.stack);
-    }
-    process.exit(1);
-  }
-}
+# Helper functions at top
+def display_results(items: list, context: str) -> None:
+    """Format and display results."""
+    print(f"\n{context}:")
+    for item in items:
+        print(f"  - {item}")
 
-main().then(() => {
-  process.exit(0);
-}).catch((error) => {
-  console.error('Fatal error:', error);
-  process.exit(1);
-});
+
+async def main():
+    """Main script logic."""
+    try:
+        # 1. Setup and parameters
+        print('Starting task...')
+        
+        # 2. API calls with logging
+        response = await call_mcp_tool("server__tool_name", {"param": "value"})
+        print(f'Got response: {type(response).__name__}')
+        
+        # 3. Defensive data extraction
+        data = getattr(response, 'value', response)
+        items = data.get('items', []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
+        
+        # 4. Process and display
+        display_results(items, 'Results')
+        
+        # 5. Return summary (not full data)
+        return {
+            "item_count": len(items),
+            "processed": True
+        }
+        
+    except Exception as e:
+        print(f'Error: {e}', file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        return None
+
+
+# Execute the script
+# Note: The harness handles asyncio.run() for you, but for standalone scripts:
+if __name__ == "__main__":
+    result = asyncio.run(main())
+    print(f'\nResult: {result}')
 ```
 
-## Process Exit Handling
+## Execution Methods
 
-**ALWAYS include proper exit codes** to ensure scripts terminate cleanly:
+Scripts can be executed in two ways:
 
-- Success: `process.exit(0)`
-- Failure: `process.exit(1)`
-- Always wrap in `.then()/.catch()` handlers
+### Via Harness (Recommended)
+
+```bash
+uv run mcp-exec workspace/my_script.py
+```
+
+The harness automatically:
+- Initializes MCP client manager
+- Sets up Python path for imports
+- Handles signals (SIGINT/SIGTERM)
+- Cleans up connections on exit
+- Manages asyncio event loop
+
+### Standalone (For Testing)
+
+```python
+# Add asyncio.run() at the bottom
+if __name__ == "__main__":
+    result = asyncio.run(main())
+```
+
+Scripts executed this way need to handle their own cleanup, but can be useful for quick testing.
 
 ## When to Create Debug Scripts
 
 Create a separate debug/exploration script when:
+
 - Working with a new MCP tool for the first time
 - Response structure is unclear or undocumented
 - You encounter unexpected empty results
-- The auto-generated wrapper shows "no outputSchema" warning
+- The auto-generated wrapper returns `Dict[str, Any]` (no schema)
 
-Name debug scripts: `workspace/debug-<feature>.ts` or `workspace/explore-<api>.ts`
+Name debug scripts: `workspace/debug_<feature>.py` or `workspace/explore_<api>.py`
 
 ## Field Normalization
 
-### Azure DevOps Auto-Normalization
+### Server-Specific Normalization
 
-**All ADO tool responses are automatically normalized to PascalCase** for consistent field access.
+Some MCP servers return fields with inconsistent casing. The runtime automatically normalizes these based on per-server strategies.
 
-Azure DevOps APIs have inconsistent field casing:
+**Example: Azure DevOps (ADO)**
+
+ADO APIs have inconsistent field casing:
+
 - **Search API** returns `system.id`, `system.parent` (lowercase)
 - **Work Item API** returns `System.Id`, `System.Parent` (PascalCase)
 
-The `ado` MCP server automatically normalizes ALL field names to PascalCase before returning them to your code. This means:
+The runtime automatically normalizes ADO field prefixes to PascalCase:
 
-**You can always use PascalCase:**
-```typescript
-// Works for ALL ADO tools - search, get, batch, etc.
-const workItem = await search_workitem({...});
-const parentId = workItem.fields['System.Parent']; // ✓ Always works
+```python
+# Auto-normalization rules for ADO:
+# system.* → System.*
+# microsoft.* → Microsoft.*
+# custom.* → Custom.*
+# wef_* → WEF_*
 
-// Don't do this:
-const parentId = workItem.fields['system.parent']; // ✗ Won't work after normalization
+work_item = await call_mcp_tool("ado__search_workitem", {...})
+parent_id = work_item['fields']['System.Parent']  # ✓ Always works
+# Don't use: work_item['fields']['system.parent']  # ✗ Won't work after normalization
 ```
 
 **Impact:**
+
 - Zero code changes needed when switching between different ADO APIs
-- Consistent field access across all 77 ADO tools
+- Consistent field access across all ADO tools
 - No runtime errors from casing mismatches
 
-This normalization is transparent and automatic. No configuration needed.
+### Adding Normalization for New Servers
+
+If you encounter a new MCP server with inconsistent field names:
+
+1. **Update `runtime/normalize_fields.py`:**
+
+   ```python
+   NORMALIZATION_CONFIG = NormalizationConfig(
+       servers={
+           "ado": "ado-pascal-case",
+           "your-server": "your-strategy",  # Add new strategy
+       }
+   )
+   ```
+
+2. **Implement the strategy if needed:**
+
+   ```python
+   def normalize_your_server_fields(obj: Any) -> Any:
+       """Your normalization logic."""
+       # Your implementation
+       pass
+   ```
+
+3. **Regenerate wrappers:**
+
+   ```bash
+   uv run mcp-generate
+   ```
+
+The generator automatically injects normalization into all wrappers for that server.
 
 ## Schema Discovery
 
 ### Type Safety for APIs Without Schemas
 
-Many MCP servers (like Azure DevOps) don't provide `outputSchema` in their tool definitions because the underlying REST APIs lack formal OpenAPI/JSON schemas. This means auto-generated wrappers use generic `any` types.
+Many MCP servers don't provide `outputSchema` in their tool definitions because the underlying REST APIs lack formal schemas. This means auto-generated wrappers use generic `Dict[str, Any]` types.
 
-**Schema discovery** lets you incrementally build TypeScript interfaces from actual API responses.
+**Schema discovery** lets you incrementally build Pydantic models from actual API responses.
 
 ### Setup
 
 1. **Copy the example config:**
+
    ```bash
-   cp discovery-config.example.json discovery-config.json
+   cp discovery_config.example.json discovery_config.json
    ```
 
 2. **Edit with your real data:**
+
    ```json
    {
      "servers": {
-       "ado": {
+       "git": {
          "safeTools": {
-           "wit_get_work_item": {
-             "description": "Get work item details",
+           "git_status": {
+             "description": "Get git status",
              "sampleParams": {
-               "id": 2421643,  // Your real work item ID
-               "project": "Your Project Name",
-               "expand": "relations"
+               "repo_path": "."
              }
            }
          }
@@ -219,20 +315,22 @@ Many MCP servers (like Azure DevOps) don't provide `outputSchema` in their tool 
    ```
 
 3. **Run discovery:**
+
    ```bash
-   npm run discover-schemas
+   uv run mcp-discover
    ```
 
 4. **Use the generated types:**
-   ```typescript
-   import { wit_get_work_item } from '../servers/ado';
-   import type { WitGetWorkItemResult } from '../servers/ado/discovered-types';
+
+   ```python
+   from servers.git import git_status
+   from servers.git.discovered_types import GitStatusResult
    
-   const workItem = await wit_get_work_item({ id: 123, project: 'MyProject' }) as WitGetWorkItemResult;
+   result = await git_status({"repo_path": "."})
    
-   // Now have IntelliSense for the structure
-   const title = workItem.fields?.['System.Title'];
-   const parent = workItem.fields?.['System.Parent'];
+   # If you need stronger typing (optional)
+   if isinstance(result, dict) and 'value' in result:
+       status_text = result['value']
    ```
 
 ### Safe vs Dangerous Tools
@@ -240,66 +338,35 @@ Many MCP servers (like Azure DevOps) don't provide `outputSchema` in their tool 
 **Only configure read-only tools** in `safeTools`:
 
 **✓ Safe (read-only):**
-- `wit_get_work_item`
-- `search_workitem`
-- `core_list_projects`
-- `repo_list_repos_by_project`
+
+- `git_status` - reads git state
+- `git_log` - reads commit history
+- `fetch` - reads web content
 - Any tool that just queries/fetches data
 
 **✗ Dangerous (never add):**
-- `wit_create_work_item` - creates data
-- `wit_update_work_item` - modifies data
-- `repo_create_pull_request` - creates resources
-- `pipelines_run_pipeline` - triggers builds
+
+- `git_commit` - modifies repository
+- `git_push` - modifies remote
+- Any tool that creates/modifies/deletes resources
 
 Schema discovery will **call the tool with your sample parameters** to capture the response. Never use mutation operations!
 
 ### Important Caveats
 
-1. **Fields are optional** - All generated types mark fields as `?` because:
-   - Responses vary by parameters (e.g., `expand='none'` vs `expand='relations'`)
-   - Work item types have different fields (Feature vs Task vs Bug)
+1. **Fields are Optional** - All generated types mark fields as `Optional` because:
+   - Responses vary by parameters
+   - Different tool calls return different structures
    - Permissions affect what's returned
-   
-2. **Still use defensive coding** - TypeScript types are compile-time hints only:
-   ```typescript
-   // Even with discovered types, still use defensive patterns
-   const title = workItem.fields?.['System.Title'] || 'Untitled';
-   const tags = workItem.fields?.['System.Tags']?.split(';') || [];
+
+2. **Still use defensive coding** - Pydantic models are type hints, not runtime guarantees:
+
+   ```python
+   # Even with discovered types, still use defensive patterns
+   title = work_item.get('fields', {}).get('System.Title', 'Untitled')
+   tags = work_item.get('fields', {}).get('System.Tags', '').split(';') if work_item.get('fields', {}).get('System.Tags') else []
    ```
 
 3. **Re-run when APIs change** - Discovered types can become stale as APIs evolve
 
 4. **Types are hints, not guarantees** - Runtime shape can differ from the sample you discovered
-
-### Adding Normalization for New Servers
-
-If you encounter a new MCP server with inconsistent field names:
-
-1. **Add normalization strategy to `runtime/normalize-fields.ts`:**
-   ```typescript
-   export const NORMALIZATION_CONFIG: Record<string, NormalizationStrategy> = {
-     ado: {
-       enabled: true,
-       strategy: 'pascalcase-dotted'
-     },
-     'your-server': {
-       enabled: true,
-       strategy: 'custom-strategy-name'
-     }
-   };
-   ```
-
-2. **Implement the strategy if needed:**
-   ```typescript
-   function normalizeYourServer(obj: any): any {
-     // Your normalization logic
-   }
-   ```
-
-3. **Regenerate wrappers:**
-   ```bash
-   npm run generate
-   ```
-
-The generator will automatically inject normalization into all wrappers for that server.
