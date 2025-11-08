@@ -48,11 +48,18 @@ def sync_main() -> NoReturn:
 
     logger.info(f"Script: {script_path}")
 
-    # 3. Add src/ to Python path for imports
+    # 3. Add project root and src/ to Python path for imports
+    # Add src/ for runtime imports (e.g., from runtime.mcp_client import ...)
     src_path = Path(__file__).parent.parent
     if str(src_path) not in sys.path:
         sys.path.insert(0, str(src_path))
         logger.debug(f"Added to sys.path: {src_path}")
+
+    # Add project root for generated server imports (e.g., from servers.git import ...)
+    project_root = src_path.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+        logger.debug(f"Added to sys.path: {project_root}")
 
     # 4. Set up signal handling
     # Note: MCP client manager will be initialized lazy on first use by the script

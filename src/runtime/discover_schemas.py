@@ -202,7 +202,7 @@ async def discover_schemas(config_path: Path | None = None) -> None:
         return
 
     # Output directory
-    output_dir = Path(__file__).parent.parent / "servers"
+    output_dir = Path(__file__).parent.parent.parent / "servers"
     output_dir.mkdir(exist_ok=True)
 
     # Discover schemas for each server

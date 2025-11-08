@@ -181,7 +181,7 @@ Auto-generated wrappers for {server_name} MCP server.
 ## Usage
 
 ```python
-from runtime.servers.{server_name} import {tool_names[0] if tool_names else 'tool_name'}
+from servers.{server_name} import {tool_names[0] if tool_names else 'tool_name'}
 
 # Use the tool
 result = await {tool_names[0] if tool_names else 'tool_name'}(params)
@@ -223,7 +223,7 @@ async def generate_wrappers(config_path: Path | None = None) -> None:
     config = McpConfig.model_validate_json(content)
 
     # Output directory
-    output_dir = Path(__file__).parent.parent / "servers"
+    output_dir = Path(__file__).parent.parent.parent / "servers"
     output_dir.mkdir(exist_ok=True)
 
     # Generate for each server

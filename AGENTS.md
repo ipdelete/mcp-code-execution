@@ -17,11 +17,11 @@
 - `src/runtime/normalize_fields.py` - Field normalization: auto-converts inconsistent API field casing (e.g., ADO: `system.parent` → `System.Parent`)
 
 ## Structure
-`src/servers/` (gitignored, regen w/ `uv run mcp-generate`):
+`servers/` (gitignored, regen w/ `uv run mcp-generate`):
 ```
-src/servers/<serverName>/<toolName>.py         # Pydantic models, async wrapper
-src/servers/<serverName>/__init__.py           # Barrel exports
-src/servers/<serverName>/discovered_types.py   # Optional: Pydantic types from actual API responses
+servers/<serverName>/<toolName>.py         # Pydantic models, async wrapper
+servers/<serverName>/__init__.py           # Barrel exports
+servers/<serverName>/discovered_types.py   # Optional: Pydantic types from actual API responses
 ```
 
 `mcp_config.json` format:
@@ -35,14 +35,14 @@ src/servers/<serverName>/discovered_types.py   # Optional: Pydantic types from a
 ```
 
 ## Workflow
-Add server: edit `mcp_config.json` → `uv run mcp-generate` → `from runtime.servers.name import tool_name` → auto-connect on first call
+Add server: edit `mcp_config.json` → `uv run mcp-generate` → `from servers.name import tool_name` → auto-connect on first call
 
-Optional schema discovery: copy `discovery_config.example.json` → edit w/ safe read-only tools + real params → `uv run mcp-discover` → `from runtime.servers.name.discovered_types import ToolNameResult`
+Optional schema discovery: copy `discovery_config.example.json` → edit w/ safe read-only tools + real params → `uv run mcp-discover` → `from servers.name.discovered_types import ToolNameResult`
 
 Script pattern (`workspace/` for user scripts, `tests/` for examples):
 ```python
-from runtime.servers.name import tool_name
-from runtime.servers.name.discovered_types import ToolNameResult  # optional
+from servers.name import tool_name
+from servers.name.discovered_types import ToolNameResult  # optional
 
 result = await tool_name(params)  # Pydantic model
 # Use defensive coding: result.field or fallback
