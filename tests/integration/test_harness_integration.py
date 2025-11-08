@@ -44,14 +44,12 @@ def test_harness_script_with_mcp():
     test_script.write_text(
         """
 import asyncio
-from runtime.mcp_client import get_mcp_client_manager, call_mcp_tool
+from runtime.mcp_client import call_mcp_tool
 
 async def main():
-    manager = get_mcp_client_manager()
-    await manager.initialize()
+    # Harness already initialized the manager, so just call the tool
     result = await call_mcp_tool("git__git_status", {"repo_path": "."})
     print(f"Git status result: {result is not None}")
-    await manager.cleanup()
 
 asyncio.run(main())
 """

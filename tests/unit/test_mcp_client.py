@@ -85,6 +85,15 @@ def mock_session() -> AsyncMock:
     return session
 
 
+@pytest.fixture
+def mock_stdio_context() -> AsyncMock:
+    """Create a mock stdio context manager that yields read/write streams."""
+    stdio_ctx = AsyncMock()
+    stdio_ctx.__aenter__ = AsyncMock(return_value=(Mock(), Mock()))
+    stdio_ctx.__aexit__ = AsyncMock(return_value=None)
+    return stdio_ctx
+
+
 class TestStateTransitions:
     """Test state machine transitions and validation."""
 
@@ -193,10 +202,11 @@ class TestLazyConnection:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """First tool call should establish server connection."""
         # Setup mocks
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
         mock_session.call_tool.return_value.value = "result"
@@ -223,10 +233,11 @@ class TestLazyConnection:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Second tool call should reuse existing connection."""
         # Setup mocks
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
         mock_session.call_tool.return_value.value = "result"
@@ -282,10 +293,11 @@ class TestToolCaching:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Tools should be cached after first list_tools call."""
         # Setup mocks
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
         mock_session.call_tool.return_value.value = "result"
@@ -314,9 +326,10 @@ class TestToolCaching:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Tool cache should persist across multiple tool calls."""
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
         mock_session.call_tool.return_value.value = "result"
@@ -338,9 +351,10 @@ class TestToolCaching:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """list_all_tools should use cache if available."""
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
 
@@ -372,9 +386,10 @@ class TestDefensiveUnwrapping:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Should unwrap response.value if present."""
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
 
@@ -398,9 +413,10 @@ class TestDefensiveUnwrapping:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Should unwrap response.content if no .value."""
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
 
@@ -424,9 +440,10 @@ class TestDefensiveUnwrapping:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Should unwrap text from list response format."""
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
 
@@ -452,9 +469,10 @@ class TestDefensiveUnwrapping:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Should parse JSON from text response."""
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
 
@@ -482,9 +500,10 @@ class TestDefensiveUnwrapping:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Should fall back to raw response if no known attributes."""
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
 
@@ -565,9 +584,10 @@ class TestErrorHandling:
         manager: McpClientManager,
         temp_config_file: Path,
         mock_session: AsyncMock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Should raise ToolNotFoundError if tool doesn't exist on server."""
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         # Return empty tool list
         mock_session.list_tools.return_value.tools = []
@@ -605,9 +625,10 @@ class TestErrorHandling:
         temp_config_file: Path,
         mock_session: AsyncMock,
         mock_tool: Mock,
+        mock_stdio_context: AsyncMock,
     ) -> None:
         """Should raise ToolExecutionError if tool execution fails."""
-        mock_stdio.return_value = (Mock(), Mock())
+        mock_stdio.return_value = mock_stdio_context
         mock_session_class.return_value.__aenter__.return_value = mock_session
         mock_session.list_tools.return_value.tools = [mock_tool]
         # Mock tool execution failure

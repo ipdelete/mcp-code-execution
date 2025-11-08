@@ -27,9 +27,8 @@ logging.basicConfig(
 logger = logging.getLogger("mcp_execution.harness")
 
 
-def sync_main() -> NoReturn:
-    """Main entry point for script execution."""
-
+def main() -> NoReturn:
+    """Entry point for the harness."""
     # 1. Parse CLI arguments
     if len(sys.argv) < 2:
         logger.error("Usage: python -m runtime.harness <script_path>")
@@ -49,20 +48,26 @@ def sync_main() -> NoReturn:
     logger.info(f"Script: {script_path}")
 
     # 3. Add project root and src/ to Python path for imports
-    # Add src/ for runtime imports (e.g., from runtime.mcp_client import ...)
     src_path = Path(__file__).parent.parent
     if str(src_path) not in sys.path:
         sys.path.insert(0, str(src_path))
         logger.debug(f"Added to sys.path: {src_path}")
 
-    # Add project root for generated server imports (e.g., from servers.git import ...)
     project_root = src_path.parent
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
         logger.debug(f"Added to sys.path: {project_root}")
 
-    # 4. Set up signal handling
-    # Note: MCP client manager will be initialized lazy on first use by the script
+    # 4. Initialize MCP client manager (in separate event loop)
+    manager = get_mcp_client_manager()
+    try:
+        asyncio.run(manager.initialize())
+        logger.info("MCP client manager initialized")
+    except McpExecutionError as e:
+        logger.error(f"Failed to initialize MCP client: {e}")
+        sys.exit(1)
+
+    # 5. Set up signal handling for the script execution
     def signal_handler(signum: int, frame: Any) -> None:
         """Handle shutdown signals."""
         signal_name = signal.Signals(signum).name
@@ -72,53 +77,33 @@ def sync_main() -> NoReturn:
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    # 6. Execute the script using runpy
+    # 6. Execute the script (synchronously, no event loop)
     exit_code = 0
     try:
-        # Execute script in isolated namespace
         logger.info(f"Executing script: {script_path}")
-
         runpy.run_path(str(script_path), run_name="__main__")
-
         logger.info("Script execution completed")
 
     except KeyboardInterrupt:
         logger.info("Execution interrupted by user")
-        exit_code = 130  # Standard exit code for Ctrl+C
+        exit_code = 130
 
     except Exception as e:
         logger.error(f"Script execution failed: {e}", exc_info=True)
         exit_code = 1
 
     finally:
-        # 7. Cleanup MCP client manager if it was initialized
-        manager = get_mcp_client_manager()
-        # Check if manager is initialized (not in UNINITIALIZED state)
-        from .mcp_client import ConnectionState
-        if manager._state != ConnectionState.UNINITIALIZED:
-            logger.info("Cleaning up MCP Client Manager...")
-
-            async def async_cleanup() -> None:
-                """Cleanup MCP connections."""
-                try:
-                    await manager.cleanup()
-                    logger.info("Cleanup complete")
-                except Exception as e:
-                    logger.error(f"Cleanup failed: {e}", exc_info=True)
-                    raise
-
-            try:
-                asyncio.run(async_cleanup())
-            except Exception:
-                if exit_code == 0:
-                    exit_code = 1
+        # 7. Cleanup (in separate event loop)
+        logger.debug("Cleaning up MCP connections...")
+        try:
+            asyncio.run(manager.cleanup())
+            logger.info("Cleanup complete")
+        except Exception as e:
+            logger.error(f"Cleanup failed: {e}", exc_info=True)
+            if exit_code == 0:
+                exit_code = 1
 
         sys.exit(exit_code)
-
-
-def main() -> NoReturn:
-    """Entry point for the harness."""
-    sync_main()
 
 
 if __name__ == "__main__":
