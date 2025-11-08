@@ -21,9 +21,8 @@ from runtime.mcp_client import get_mcp_client_manager, call_mcp_tool
 
 async def main():
     """Analyze git commit history and return summary."""
-    # Initialize MCP client manager
+    # Get the MCP client manager (already initialized by the harness)
     manager = get_mcp_client_manager()
-    await manager.initialize()
 
     print("🔍 Analyzing git commit history...")
 
@@ -41,15 +40,23 @@ async def main():
 
     # Parse commit data (structure varies by server)
     if isinstance(commits_result, str):
-        # Parse text format
+        # Parse text format from git server
         commit_lines = [
             line for line in commits_result.split("\n") if line.strip()
         ]
-        total_commits = len([l for l in commit_lines if l.startswith("commit")])
+        # Count commits (git server uses "Commit:" prefix)
+        total_commits = len([l for l in commit_lines if l.startswith("Commit:")])
+
+        # Extract authors (format: 'Author: <git.Actor "Name <email>">')
         authors = []
         for line in commit_lines:
             if line.startswith("Author:"):
-                author = line.split("Author:")[1].strip()
+                author_str = line.split("Author:")[1].strip()
+                # Extract name from '<git.Actor "Name <email>">' format
+                if '"' in author_str:
+                    author = author_str.split('"')[1].split('<')[0].strip()
+                else:
+                    author = author_str
                 authors.append(author)
     elif isinstance(commits_result, list):
         # Parse list format
@@ -86,8 +93,6 @@ async def main():
     print(f"  Top contributor: {summary['top_contributor']['name']} "
           f"({summary['top_contributor']['commits']} commits)")
 
-    # Cleanup
-    await manager.cleanup()
     return summary
 
 
