@@ -169,17 +169,17 @@ branch: python-port
 
 ### Tasks
 
-- [ ] T065 Create `src/runtime/normalize_fields.py` with NormalizationStrategy Literal type
-- [ ] T066 Create NormalizationConfig Pydantic model
-- [ ] T067 Define NORMALIZATION_CONFIG with default strategies (ado: "ado-pascal-case", filesystem: "none", github: "none")
-- [ ] T068 Implement `normalize_field_names()` function with strategy dispatch
-- [ ] T069 Implement `normalize_ado_fields()` function with ADO-specific rules (system.* → System.*, microsoft.* → Microsoft.*, custom.* → Custom.*, wef_* → WEF_*)
-- [ ] T070 Implement recursive traversal for dicts and lists
-- [ ] T071 Ensure immutability (return new objects, don't mutate)
-- [ ] T072 [P] Create unit tests in `tests/test_normalize_fields.py` for ADO normalization
-- [ ] T073 [P] Add unit test for recursion with nested structures
-- [ ] T074 [P] Add unit test for immutability (original unchanged)
-- [ ] T075 Run unit tests: `uv run pytest tests/test_normalize_fields.py`
+- [x] T065 Create `src/runtime/normalize_fields.py` with NormalizationStrategy Literal type
+- [x] T066 Create NormalizationConfig Pydantic model
+- [x] T067 Define NORMALIZATION_CONFIG with default strategies (ado: "ado-pascal-case", filesystem: "none", github: "none")
+- [x] T068 Implement `normalize_field_names()` function with strategy dispatch
+- [x] T069 Implement `normalize_ado_fields()` function with ADO-specific rules (system.* → System.*, microsoft.* → Microsoft.*, custom.* → Custom.*, wef_* → WEF_*)
+- [x] T070 Implement recursive traversal for dicts and lists
+- [x] T071 Ensure immutability (return new objects, don't mutate)
+- [x] T072 [P] Create unit tests in `tests/test_normalize_fields.py` for ADO normalization
+- [x] T073 [P] Add unit test for recursion with nested structures
+- [x] T074 [P] Add unit test for immutability (original unchanged)
+- [x] T075 Run unit tests: `uv run pytest tests/test_normalize_fields.py`
 
 **Validation**: CHK042-CHK048, CHK099
 

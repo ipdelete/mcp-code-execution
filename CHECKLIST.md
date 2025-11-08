@@ -71,13 +71,13 @@
 
 ## Phase 4: Field Normalization
 
-- [ ] CHK042 - Does normalize_fields.py support pluggable normalization strategies? [Completeness, Plan §Phase 4]
-- [ ] CHK043 - Is the "ado-pascal-case" strategy fully specified (system.*, microsoft.*, custom.*, wef_*)? [Clarity, Plan §Phase 4 Key Components]
-- [ ] CHK044 - Does normalization work recursively on nested dicts and lists? [Completeness, Plan §Phase 4 Key Components]
-- [ ] CHK045 - Is normalization immutable (returns new objects, doesn't mutate)? [Completeness, Plan §Phase 4 Key Components]
-- [ ] CHK046 - Is NormalizationConfig typed with Pydantic? [Consistency, Plan §Phase 4 Key Components]
-- [ ] CHK047 - Can users configure normalization per server? [Completeness, Plan §Phase 4 Key Components]
-- [ ] CHK048 - Is the default configuration (ado, filesystem, github) documented? [Clarity, Plan §Phase 4 Key Components]
+- [x] CHK042 - Does normalize_fields.py support pluggable normalization strategies? [Completeness, Plan §Phase 4]
+- [x] CHK043 - Is the "ado-pascal-case" strategy fully specified (system.*, microsoft.*, custom.*, wef_*)? [Clarity, Plan §Phase 4 Key Components]
+- [x] CHK044 - Does normalization work recursively on nested dicts and lists? [Completeness, Plan §Phase 4 Key Components]
+- [x] CHK045 - Is normalization immutable (returns new objects, doesn't mutate)? [Completeness, Plan §Phase 4 Key Components]
+- [x] CHK046 - Is NormalizationConfig typed with Pydantic? [Consistency, Plan §Phase 4 Key Components]
+- [x] CHK047 - Can users configure normalization per server? [Completeness, Plan §Phase 4 Key Components]
+- [x] CHK048 - Is the default configuration (ado, filesystem, github) documented? [Clarity, Plan §Phase 4 Key Components]
 
 ## Phase 5: Wrapper Generation
 
@@ -146,7 +146,7 @@
 
 - [x] CHK097 - Are unit tests defined for mcp_client.py (lazy loading)? [Completeness, Plan §Testing Strategy]
 - [ ] CHK098 - Are unit tests defined for schema_utils.py (JSON Schema conversion)? [Completeness, Plan §Testing Strategy]
-- [ ] CHK099 - Are unit tests defined for normalize_fields.py (field normalization)? [Completeness, Plan §Testing Strategy]
+- [x] CHK099 - Are unit tests defined for normalize_fields.py (field normalization)? [Completeness, Plan §Testing Strategy]
 - [ ] CHK100 - Are unit tests defined for generate_wrappers.py (code generation)? [Completeness, Plan §Testing Strategy]
 - [ ] CHK101 - Are integration tests defined for filesystem server? [Completeness, Plan §Testing Strategy]
 - [ ] CHK102 - Are integration tests defined for github server? [Completeness, Plan §Testing Strategy]
