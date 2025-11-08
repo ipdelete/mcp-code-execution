@@ -1,6 +1,6 @@
 # AGENTS.md
 
-**Progressive disclosure MCP pattern**: Load tools on-demand (150k→2k tokens, 98.7% reduction). Lazy server connections, auto-gen Python wrappers, local data processing, filesystem tool discovery.
+**Progressive disclosure MCP pattern**: Load tools on-demand (150k→2k tokens, 98.7% reduction). Lazy server connections, auto-gen Python wrappers, efficient data retrieval, filesystem tool discovery. Scripts fetch data; LLM handles processing/summarization in follow-up turns.
 
 ## Commands
 - `uv run mcp-generate` - Gen Python wrappers from `mcp_config.json`
@@ -46,16 +46,18 @@ from servers.name.discovered_types import ToolNameResult  # optional
 
 result = await tool_name(params)  # Pydantic model
 # Use defensive coding: result.field or fallback
-# Process locally, log summaries only
+# Return data - LLM can process/summarize in follow-up interactions
+# Not all processing needs to happen in-script
 ```
 
 ## Key Details
 - Tool ID: `"serverName__toolName"` (double underscore)
-- Progressive disclosure: list `servers/` → read needed tools → lazy connect → local processing → summary only
+- Progressive disclosure: list `servers/` → read needed tools → lazy connect → fetch data → LLM processes
+- **Processing flexibility**: Scripts can return raw data for LLM to process, pre-process for efficiency, or reshape for chaining tool calls - choose based on use case
 - Type gen: Pydantic models for all schemas, handles primitives, unions, nested objects, required/optional, docstrings
 - Schema discovery: only use safe read-only tools (never mutations), types are hints (fields marked Optional), still use defensive coding
 - Field normalization: auto-applied per server (e.g., ADO normalizes all fields to PascalCase for consistency)
-- Python: asyncio for concurrency, Pydantic for validation, mypy for type safety, aiofiles for async file I/O
+- Python: asyncio for concurrency, Pydantic for validation, mypy for type safety
 
 ## Troubleshooting
 - "MCP server not configured": check `mcp_config.json` keys

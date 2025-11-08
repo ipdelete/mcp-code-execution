@@ -7,8 +7,8 @@
 This runtime enables AI agents to work with MCP tools through a progressive disclosure pattern:
 1. Agent explores `./servers/` to discover available tools
 2. Agent reads only needed tool definitions
-3. Agent writes Python script that processes data locally
-4. Script returns summary only (not raw data)
+3. Agent writes Python script to fetch data via MCP tools
+4. Script returns results (raw or processed) - agent can then process/summarize in subsequent turns
 
 **Result**: ~98.7% reduction in tokens sent to the agent.
 
@@ -107,8 +107,10 @@ When you ask an AI agent to work with your data:
 
 1. **Agent explores** the available MCP tools via `./servers/`
 2. **Agent writes a script** that uses `call_mcp_tool()` to fetch data from MCP servers
-3. **Script processes locally** - the MCP server returns full data, but the script processes it and returns only a summary
-4. **Agent receives summary** - keeping context lean and token usage minimal
+3. **Script returns data** - either raw or pre-processed depending on the use case
+4. **Agent processes results** - can summarize, reshape, or use as input for subsequent tool calls
+
+**Key insight**: Not all processing needs to happen in the script. The LLM can handle summarization and data transformation in follow-up interactions. Scripts focus on efficient data retrieval.
 
 Example script the agent might write:
 
@@ -125,11 +127,10 @@ async def main():
         {"repo_path": ".", "max_count": 10}
     )
 
-    # Process locally
-    print(f"Found {len(result)} commits")
-
-    # Return summary (not full data)
-    return {"commit_count": len(result)}
+    # Return data for agent to process
+    # Agent can then summarize, analyze, or use as input to other tools
+    print(f"Fetched commit log")
+    return result
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -161,7 +162,8 @@ Agent → MCP Server → [Full Data 50KB] → Agent processes all
 **Progressive Disclosure** (98.7% Reduction):
 ```
 Agent → Discovers tools → Writes script
-Script → MCP Server → [Full Data 50KB] → Processes locally → [Summary 100B] → Agent
+Script → MCP Server → [Full Data 50KB] → Returns to Agent
+Agent → Processes/summarizes → Uses in follow-up calls
 ```
 
 ### Key Components
