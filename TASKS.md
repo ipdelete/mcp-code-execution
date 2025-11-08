@@ -99,27 +99,27 @@ branch: python-port
 
 ### Tasks
 
-- [ ] T029 Create `src/runtime/mcp_client.py` with McpClientManager class skeleton
-- [ ] T030 Implement `__init__` method with internal state (_clients, _tool_cache, _config, _initialized)
-- [ ] T031 Implement `initialize()` method: load config from mcp_config.json using aiofiles
-- [ ] T032 Implement Pydantic config validation in initialize() using McpConfig.model_validate_json()
-- [ ] T033 Implement `_connect_to_server()` method with stdio_client and StdioServerParameters
-- [ ] T034 Implement lazy connection logic: only connect when tool is first called
-- [ ] T035 Implement tool identifier parsing (format: "serverName__toolName")
-- [ ] T036 Implement `call_tool()` method with lazy connection and defensive unwrapping (getattr(result, 'value', result))
-- [ ] T037 Implement JSON parsing for text responses in call_tool()
-- [ ] T038 Implement `list_all_tools()` method (connects to all servers)
-- [ ] T039 Implement tool caching to avoid repeated list_tools() calls
-- [ ] T040 Implement `cleanup()` method with proper error handling for all connections
-- [ ] T041 Implement singleton pattern using @lru_cache decorator on get_mcp_client_manager()
-- [ ] T042 Implement convenience function `call_mcp_tool()` that uses singleton manager
-- [ ] T043 Add logging statements (INFO level for connections, DEBUG for details)
-- [ ] T044 Add proper error handling with custom exceptions from exceptions.py
-- [ ] T045 [P] Create unit tests in `tests/test_mcp_client.py` for lazy initialization
-- [ ] T046 [P] Add unit test for lazy connection (verify server connects on first call, not on initialize)
-- [ ] T047 [P] Add unit test for tool caching
-- [ ] T048 [P] Add unit test for cleanup/shutdown
-- [ ] T049 Run unit tests: `uv run pytest tests/test_mcp_client.py`
+- [x] T029 Create `src/runtime/mcp_client.py` with McpClientManager class skeleton
+- [x] T030 Implement `__init__` method with internal state (_clients, _tool_cache, _config, _initialized)
+- [x] T031 Implement `initialize()` method: load config from mcp_config.json using aiofiles
+- [x] T032 Implement Pydantic config validation in initialize() using McpConfig.model_validate_json()
+- [x] T033 Implement `_connect_to_server()` method with stdio_client and StdioServerParameters
+- [x] T034 Implement lazy connection logic: only connect when tool is first called
+- [x] T035 Implement tool identifier parsing (format: "serverName__toolName")
+- [x] T036 Implement `call_tool()` method with lazy connection and defensive unwrapping (getattr(result, 'value', result))
+- [x] T037 Implement JSON parsing for text responses in call_tool()
+- [x] T038 Implement `list_all_tools()` method (connects to all servers)
+- [x] T039 Implement tool caching to avoid repeated list_tools() calls
+- [x] T040 Implement `cleanup()` method with proper error handling for all connections
+- [x] T041 Implement singleton pattern using @lru_cache decorator on get_mcp_client_manager()
+- [x] T042 Implement convenience function `call_mcp_tool()` that uses singleton manager
+- [x] T043 Add logging statements (INFO level for connections, DEBUG for details)
+- [x] T044 Add proper error handling with custom exceptions from exceptions.py
+- [x] T045 [P] Create unit tests in `tests/test_mcp_client.py` for lazy initialization
+- [x] T046 [P] Add unit test for lazy connection (verify server connects on first call, not on initialize)
+- [x] T047 [P] Add unit test for tool caching
+- [x] T048 [P] Add unit test for cleanup/shutdown
+- [x] T049 Run unit tests: `uv run pytest tests/test_mcp_client.py`
 
 **Validation**: CHK023-CHK032, CHK086-CHK089, CHK097, CHK112-CHK120
 

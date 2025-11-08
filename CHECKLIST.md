@@ -46,16 +46,16 @@
 
 ## Phase 2: MCP Client Manager
 
-- [ ] CHK023 - Does McpClientManager implement lazy initialization (config loaded, servers NOT connected)? [Completeness, Plan §Phase 2 Key Features]
-- [ ] CHK024 - Does McpClientManager implement lazy connection (servers connect on first tool call)? [Completeness, Plan §Phase 2 Key Features]
-- [ ] CHK025 - Is tool caching implemented to avoid repeated list_tools calls? [Completeness, Plan §Phase 2 Key Features]
-- [ ] CHK026 - Does the client implement defensive unwrapping (response.value or response)? [Completeness, Plan §Phase 2 Key Features]
-- [ ] CHK027 - Is JSON parsing implemented for text responses? [Completeness, Plan §Phase 2 Key Features]
-- [ ] CHK028 - Does the singleton pattern use @lru_cache for thread safety? [Clarity, Plan §Phase 2 Key Components]
-- [ ] CHK029 - Is cleanup/shutdown properly implemented with error handling? [Completeness, Plan §Phase 2 Key Features]
-- [ ] CHK030 - Are all error types from exceptions.py used appropriately? [Consistency, Plan §Phase 2]
-- [ ] CHK031 - Is the tool identifier format ("serverName__toolName") documented? [Clarity, Plan §Phase 2 Key Components]
-- [ ] CHK032 - Does call_mcp_tool provide a convenience wrapper around the manager? [Completeness, Plan §Phase 2 Key Components]
+- [x] CHK023 - Does McpClientManager implement lazy initialization (config loaded, servers NOT connected)? [Completeness, Plan §Phase 2 Key Features]
+- [x] CHK024 - Does McpClientManager implement lazy connection (servers connect on first tool call)? [Completeness, Plan §Phase 2 Key Features]
+- [x] CHK025 - Is tool caching implemented to avoid repeated list_tools calls? [Completeness, Plan §Phase 2 Key Features]
+- [x] CHK026 - Does the client implement defensive unwrapping (response.value or response)? [Completeness, Plan §Phase 2 Key Features]
+- [x] CHK027 - Is JSON parsing implemented for text responses? [Completeness, Plan §Phase 2 Key Features]
+- [x] CHK028 - Does the singleton pattern use @lru_cache for thread safety? [Clarity, Plan §Phase 2 Key Components]
+- [x] CHK029 - Is cleanup/shutdown properly implemented with error handling? [Completeness, Plan §Phase 2 Key Features]
+- [x] CHK030 - Are all error types from exceptions.py used appropriately? [Consistency, Plan §Phase 2]
+- [x] CHK031 - Is the tool identifier format ("serverName__toolName") documented? [Clarity, Plan §Phase 2 Key Components]
+- [x] CHK032 - Does call_mcp_tool provide a convenience wrapper around the manager? [Completeness, Plan §Phase 2 Key Components]
 
 ## Phase 3: Script Execution Harness
 
@@ -130,10 +130,10 @@
 
 ## Success Criteria Validation
 
-- [ ] CHK086 - Is lazy loading pattern preserved in McpClientManager? [Pattern Preservation, Plan §Success Criteria]
-- [ ] CHK087 - Do lazy server connections work (no connection until first tool call)? [Pattern Preservation, Plan §Success Criteria]
-- [ ] CHK088 - Does tool caching prevent repeated list_tools calls? [Pattern Preservation, Plan §Success Criteria]
-- [ ] CHK089 - Is defensive unwrapping implemented throughout? [Pattern Preservation, Plan §Success Criteria]
+- [x] CHK086 - Is lazy loading pattern preserved in McpClientManager? [Pattern Preservation, Plan §Success Criteria]
+- [x] CHK087 - Do lazy server connections work (no connection until first tool call)? [Pattern Preservation, Plan §Success Criteria]
+- [x] CHK088 - Does tool caching prevent repeated list_tools calls? [Pattern Preservation, Plan §Success Criteria]
+- [x] CHK089 - Is defensive unwrapping implemented throughout? [Pattern Preservation, Plan §Success Criteria]
 - [ ] CHK090 - Does mypy pass in strict mode for all runtime code? [Type Safety, Plan §Success Criteria]
 - [ ] CHK091 - Do generated wrappers have complete type hints? [Type Safety, Plan §Success Criteria]
 - [ ] CHK092 - Does IDE autocomplete work for generated tools? [Type Safety, Plan §Success Criteria]
@@ -144,7 +144,7 @@
 
 ## Testing Coverage
 
-- [ ] CHK097 - Are unit tests defined for mcp_client.py (lazy loading)? [Completeness, Plan §Testing Strategy]
+- [x] CHK097 - Are unit tests defined for mcp_client.py (lazy loading)? [Completeness, Plan §Testing Strategy]
 - [ ] CHK098 - Are unit tests defined for schema_utils.py (JSON Schema conversion)? [Completeness, Plan §Testing Strategy]
 - [ ] CHK099 - Are unit tests defined for normalize_fields.py (field normalization)? [Completeness, Plan §Testing Strategy]
 - [ ] CHK100 - Are unit tests defined for generate_wrappers.py (code generation)? [Completeness, Plan §Testing Strategy]
@@ -165,15 +165,15 @@
 
 ## Error Handling & Edge Cases
 
-- [ ] CHK112 - Is ServerConnectionError raised when server connection fails? [Completeness, Plan §Phase 1]
-- [ ] CHK113 - Is ToolNotFoundError raised when tool doesn't exist? [Completeness, Plan §Phase 1]
-- [ ] CHK114 - Is ToolExecutionError raised when tool execution fails? [Completeness, Plan §Phase 1]
-- [ ] CHK115 - Is ConfigurationError raised for invalid config? [Completeness, Plan §Phase 1]
-- [ ] CHK116 - Is SchemaValidationError raised for schema validation failures? [Completeness, Plan §Phase 1]
-- [ ] CHK117 - Are all exceptions properly caught and logged in harness? [Completeness, Plan §Phase 3]
-- [ ] CHK118 - Is cleanup executed even if script raises exceptions? [Completeness, Plan §Phase 3]
-- [ ] CHK119 - Are MCP response variations handled (response.value vs response)? [Edge Case, Plan §Phase 2]
-- [ ] CHK120 - Are text responses parsed as JSON when needed? [Edge Case, Plan §Phase 2]
+- [x] CHK112 - Is ServerConnectionError raised when server connection fails? [Completeness, Plan §Phase 1]
+- [x] CHK113 - Is ToolNotFoundError raised when tool doesn't exist? [Completeness, Plan §Phase 1]
+- [x] CHK114 - Is ToolExecutionError raised when tool execution fails? [Completeness, Plan §Phase 1]
+- [x] CHK115 - Is ConfigurationError raised for invalid config? [Completeness, Plan §Phase 1]
+- [x] CHK116 - Is SchemaValidationError raised for schema validation failures? [Completeness, Plan §Phase 1]
+- [x] CHK117 - Are all exceptions properly caught and logged in harness? [Completeness, Plan §Phase 3]
+- [x] CHK118 - Is cleanup executed even if script raises exceptions? [Completeness, Plan §Phase 3]
+- [x] CHK119 - Are MCP response variations handled (response.value vs response)? [Edge Case, Plan §Phase 2]
+- [x] CHK120 - Are text responses parsed as JSON when needed? [Edge Case, Plan §Phase 2]
 
 ## Timeline & Risks
 
