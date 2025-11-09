@@ -237,17 +237,91 @@ def _generate_with_claude_code(
         return None
 
 
+def _generate_with_copilot_cli(
+    tool_name: str,
+    input_schema: dict[str, Any],
+    description: str | None = None,
+) -> dict[str, Any] | None:
+    """
+    Generate test parameters using GitHub Copilot CLI via subprocess.
+
+    Args:
+        tool_name: Name of the tool
+        input_schema: JSON Schema for tool inputs
+        description: Optional tool description for context
+
+    Returns:
+        Dict of test parameters, or None if generation fails
+    """
+    try:
+        # Load and format the prompt template
+        template = _load_prompt_template()
+        description_line = f"Description: {description}" if description else ""
+        schema_json = json.dumps(input_schema, indent=2)
+
+        prompt = template.format(
+            tool_name=tool_name,
+            description_line=description_line,
+            schema_json=schema_json,
+        )
+
+        # Run copilot CLI command
+        result = subprocess.run(
+            ["copilot", "-p", f"prompt {prompt}", "--allow-all-tools"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        if result.returncode != 0:
+            logger.warning(f"Copilot CLI failed for {tool_name}: {result.stderr}")
+            return None
+
+        # Extract JSON from response
+        response_text = result.stdout.strip()
+
+        # Handle markdown code blocks
+        if response_text.startswith("```"):
+            response_text = response_text.split("```")[1]
+            if response_text.startswith("json"):
+                response_text = response_text[4:]
+            response_text = response_text.strip()
+
+        params = json.loads(response_text)
+
+        if not isinstance(params, dict):
+            logger.warning(f"Generated params for {tool_name} is not a dict: {type(params)}")
+            return None
+
+        logger.debug(f"Generated params for {tool_name}: {params}")
+        return params
+
+    except subprocess.TimeoutExpired:
+        logger.warning(f"Copilot CLI timed out for {tool_name}")
+        return None
+    except FileNotFoundError:
+        logger.warning("Copilot CLI not found. Please install GitHub Copilot CLI")
+        return None
+    except json.JSONDecodeError as e:
+        logger.warning(f"Failed to parse generated params for {tool_name}: {e}")
+        return None
+    except Exception as e:
+        logger.warning(f"Unexpected error with Copilot CLI for {tool_name}: {e}")
+        return None
+
+
 def generate_test_parameters(
     tool_name: str,
     input_schema: dict[str, Any],
     description: str | None = None,
     use_claude_api: bool = True,
     use_claude_code: bool = False,
+    use_copilot_cli: bool = False,
 ) -> dict[str, Any] | None:
     """
     Generate test parameters for a tool using Claude.
 
-    Uses Claude Haiku API or Claude Code CLI to generate minimal but valid
+    Uses Claude Haiku API, Claude Code CLI, or Copilot CLI to generate minimal but valid
     test parameters that satisfy the tool's inputSchema. Returns None on any
     error (safe fallback).
 
@@ -257,6 +331,7 @@ def generate_test_parameters(
         description: Optional tool description for context
         use_claude_api: If False, skip Claude API and return None (default: True)
         use_claude_code: If True, use Claude Code CLI instead of API (default: False)
+        use_copilot_cli: If True, use Copilot CLI instead of API (default: False)
 
     Returns:
         Dict of test parameters, or None if generation fails
@@ -273,7 +348,11 @@ def generate_test_parameters(
         >>> params = generate_test_parameters("git_log", schema)
         >>> # Returns: {"repo_path": ".", "max_count": 1}
     """
-    # Claude Code takes precedence if both are enabled
+    # CLI tools take precedence over API: Copilot > Claude Code > API
+    if use_copilot_cli:
+        logger.debug(f"Using Copilot CLI for {tool_name}")
+        return _generate_with_copilot_cli(tool_name, input_schema, description)
+
     if use_claude_code:
         logger.debug(f"Using Claude Code CLI for {tool_name}")
         return _generate_with_claude_code(tool_name, input_schema, description)
@@ -346,6 +425,7 @@ def build_discovery_config(
     skip_dangerous: bool = True,
     use_claude_api: bool = True,
     use_claude_code: bool = False,
+    use_copilot_cli: bool = False,
 ) -> dict[str, Any]:
     """
     Build a discovery config from servers and their tools.
@@ -359,6 +439,7 @@ def build_discovery_config(
         skip_dangerous: If True, exclude DANGEROUS tools from config (default: True)
         use_claude_api: If False, skip Claude API calls for parameter generation (default: True)
         use_claude_code: If True, use Claude Code CLI instead of API (default: False)
+        use_copilot_cli: If True, use Copilot CLI instead of API (default: False)
 
     Returns:
         Dictionary suitable for writing to discovery_config.json
@@ -420,7 +501,12 @@ def build_discovery_config(
 
             # Generate test parameters
             params = generate_test_parameters(
-                tool_name, input_schema, description, use_claude_api, use_claude_code
+                tool_name,
+                input_schema,
+                description,
+                use_claude_api,
+                use_claude_code,
+                use_copilot_cli,
             )
             if params is None:
                 logger.warning(f"Failed to generate params for {server_name}.{tool_name}")
@@ -484,6 +570,7 @@ async def generate_discovery_config_file(
     skip_dangerous: bool = True,
     use_claude_api: bool = True,
     use_claude_code: bool = False,
+    use_copilot_cli: bool = False,
 ) -> None:
     """
     Main entry point: generate discovery_config.json from mcp_config.json.
@@ -497,6 +584,7 @@ async def generate_discovery_config_file(
         skip_dangerous: Skip dangerous tools by default (default: True)
         use_claude_api: Use Claude API to generate test parameters (default: True)
         use_claude_code: Use Claude Code CLI instead of API (default: False)
+        use_copilot_cli: Use Copilot CLI instead of API (default: False)
     """
     from .config import McpConfig
     from .mcp_client import McpClientManager
@@ -585,6 +673,7 @@ async def generate_discovery_config_file(
         skip_dangerous=skip_dangerous,
         use_claude_api=use_claude_api,
         use_claude_code=use_claude_code,
+        use_copilot_cli=use_copilot_cli,
     )
 
     # Write config file (using synchronous write to avoid cleanup issues)
@@ -626,6 +715,11 @@ def main() -> None:
         help="Use Claude Code CLI instead of API (requires 'claude' command)",
     )
     parser.add_argument(
+        "--copilot-cli",
+        action="store_true",
+        help="Use Copilot CLI instead of API (requires 'copilot' command)",
+    )
+    parser.add_argument(
         "--mcp-config",
         default="./mcp_config.json",
         help="Path to mcp_config.json (default: ./mcp_config.json)",
@@ -655,6 +749,7 @@ def main() -> None:
             skip_dangerous=not args.include_dangerous,
             use_claude_api=args.claude_api,
             use_claude_code=args.claude_code,
+            use_copilot_cli=args.copilot_cli,
         )
     )
 

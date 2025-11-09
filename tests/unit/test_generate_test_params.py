@@ -300,6 +300,93 @@ class TestGenerateTestParameters:
 
             assert mock_run.called
 
+    def test_generate_with_copilot_cli_flag(self) -> None:
+        """When use_copilot_cli=True, uses subprocess to call copilot."""
+        from unittest.mock import MagicMock, patch
+
+        schema = {
+            "type": "object",
+            "properties": {"name": {"type": "string"}},
+            "required": ["name"],
+        }
+
+        # Mock subprocess to simulate Copilot CLI response
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = '{"name": "test"}'
+        mock_result.stderr = ""
+
+        with patch("subprocess.run", return_value=mock_result) as mock_run:
+            result = generate_test_parameters("test_tool", schema, use_copilot_cli=True)
+
+            assert mock_run.called
+            assert result == {"name": "test"}
+            # Verify the copilot command was called correctly
+            call_args = mock_run.call_args[0][0]
+            assert call_args[0] == "copilot"
+            assert call_args[1] == "-p"
+            assert "--allow-all-tools" in call_args
+
+    def test_generate_with_copilot_cli_not_found(self) -> None:
+        """When Copilot CLI is not installed, returns None gracefully."""
+        from unittest.mock import patch
+
+        schema = {
+            "type": "object",
+            "properties": {"name": {"type": "string"}},
+        }
+
+        with patch("subprocess.run", side_effect=FileNotFoundError()):
+            result = generate_test_parameters("test_tool", schema, use_copilot_cli=True)
+
+            assert result is None
+
+    def test_generate_with_copilot_cli_precedence_over_claude_code(self) -> None:
+        """Copilot CLI takes precedence over Claude Code when both enabled."""
+        from unittest.mock import MagicMock, patch
+
+        schema = {"type": "object", "properties": {}}
+
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = "{}"
+
+        with patch("subprocess.run", return_value=mock_result) as mock_run:
+            # Both enabled, should use copilot_cli
+            generate_test_parameters(
+                "test_tool", schema, use_claude_code=True, use_copilot_cli=True
+            )
+
+            assert mock_run.called
+            # Verify copilot was called, not claude
+            call_args = mock_run.call_args[0][0]
+            assert call_args[0] == "copilot"
+
+    def test_generate_with_copilot_cli_precedence_over_all(self) -> None:
+        """Copilot CLI takes precedence over both Claude Code and API when all enabled."""
+        from unittest.mock import MagicMock, patch
+
+        schema = {"type": "object", "properties": {}}
+
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = "{}"
+
+        with patch("subprocess.run", return_value=mock_result) as mock_run:
+            # All enabled, should use copilot_cli
+            generate_test_parameters(
+                "test_tool",
+                schema,
+                use_claude_api=True,
+                use_claude_code=True,
+                use_copilot_cli=True,
+            )
+
+            assert mock_run.called
+            # Verify copilot was called
+            call_args = mock_run.call_args[0][0]
+            assert call_args[0] == "copilot"
+
 
 class TestToolSafetyEnum:
     """Test ToolSafety enum."""
